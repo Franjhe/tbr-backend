@@ -90,7 +90,7 @@ const payOneClientDebts = async (userData, paymentData) => {
     const contracts = await Contract.getClientAssociatedContracts(clientId);
     if (contracts.error) {
         return {
-            error: contracts.error
+            error: contractsdebtCollections.error
         }
     }
     let debtCollections = [];
@@ -127,7 +127,7 @@ const payOneClientDebts = async (userData, paymentData) => {
             debt.mpendiente = debt.mcuota
         }
     }
-    const totalDebt = debtCollections.reduce((total, debt) => total + debt.mpendiente, 0)
+    const totalDebt = debtCdebtCollectionsollections.reduce((total, debt) => total + debt.mpendiente, 0)
     let totalPaymentAmount = paymentData.distribucionPago.reduce((totalAmount, paymentData) => totalAmount + paymentData.mpago, 0);
     if (totalDebt < totalPaymentAmount) {
         return {
@@ -204,8 +204,31 @@ const payOneClientDebts = async (userData, paymentData) => {
     return paidDebts;
 }
 
+const getAllDebtCollectionsPending = async (userData, searchData) => {
+    if (!userData.bmaster) {
+        return {
+            permissionError: 'El usuario solo puede visualizar la cobranza de los clientes de la sucursal a la que pertenece.'
+        }
+    }
+
+    let debtCollections = [];
+    let contractDebtCollection = await Collection.getAllContractDebtCollectionsPending(searchData);
+    if (contractDebtCollection.error) {
+        return {
+            error: contractDebtCollection.error
+        }
+    }
+    for (let contractDebt of contractDebtCollection) {
+        debtCollections.push(contractDebt);
+    }
+    
+
+    return debtCollections;
+}
+
 export default {
     getAllClientDebtCollections,
     getAllClientPaidBillings,
-    payOneClientDebts
+    payOneClientDebts,
+    getAllDebtCollectionsPending
 }

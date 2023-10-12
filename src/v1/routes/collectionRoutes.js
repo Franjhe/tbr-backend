@@ -4,6 +4,8 @@ import authorizate from '../../middlewares/authorizate.js'
 import verifyIfClientExists from '../../middlewares/verifyIfClientExists.js';
 import searchClientDebtCollectionsDTO from '../../dto/searchClientDebtCollectionsDTO.js';
 import payOneClientDebtsDTO from '../../dto/payOneClientDebtsDTO.js';
+import SearchCollectionPendingDTOSchema from '../../dto/searchCollectionPendingDTO.js';
+
 
 const router = express.Router();
 
@@ -238,5 +240,69 @@ router
      *               $ref: '#/components/responses/ErrorResponse' 
      */
     .post('/', authorizate(2, true, false, false), payOneClientDebtsDTO.validatePayOneClientDebtsDTO, verifyIfClientExists, collectionController.payOneClientDebts)
+
+        /**
+     * @swagger
+     * /api/v1/collections/branch:
+     *   post:
+     *     tags:
+     *       - Collections
+     *     summary: Search for debts by branch with date range
+     *     description: Returns pending receipts
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody: 
+     *       required: true
+     *       content: 
+     *         application/json:
+     *           schema: 
+     *             $ref: '#/components/schemas/PayOneClientDebtsDTOSchema'
+     *     responses:
+     *       201:
+     *         description: OK
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 status:
+     *                   type: boolean
+     *                 message: 
+     *                   type: string
+     *                 crecibo:
+     *                   type: integer
+     *                   example: 0
+     *       400:
+     *         description: Bad request
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/responses/ErrorResponse'
+     *       401:
+     *         description: User is not authenticated
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/responses/ErrorResponse'
+     *       403:
+     *         description: User is not authorized to perform this action
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/responses/ErrorResponse'
+     *       404:
+     *         description: Data not found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/responses/ErrorResponse'
+     *       5XX:
+     *         description: Internal server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/responses/ErrorResponse' 
+     */
+        .post('/pending-collections', authorizate(2, true, false, false), SearchCollectionPendingDTOSchema.validateSearchCollectionPendingsDTO, collectionController.getAllDebtCollectionsPending)
 
 export default router;

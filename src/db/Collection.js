@@ -53,6 +53,30 @@ const getAllContractDebtCollections = async (packageId) => {
     }
 }
 
+const getAllContractDebtCollectionsPending = async (Pending) => {
+    console.log(Pending)
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool.request()
+            .input('csucursal', sql.Int, Pending.csucursal)
+            .input('fdesde', sql.Date, Pending.fdesde)
+            .input('fhasta', sql.Date, Pending.fhasta)
+            .input('bpago', sql.Bit, false)
+            .input('bactivo', sql.Bit, true)
+            .query(
+                'select npaquete, mpaquete_cont, fcontrato, xsucursal, ccuota, ipago, mcuota, fpago , ncliente '
+                + 'from vwbuscarcobranzapendientexcliente where bpago = @bpago and bactivo = @bactivo and csucursal = @csucursal and fpago >= @fdesde AND fpago <= @fhasta'
+            );
+        return result.recordset;
+    }
+    catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
 const getInstallmentPayments = async (packageId, paymentInstallmentId) => {
     try {
         let pool = await sql.connect(sqlConfig);
@@ -187,6 +211,7 @@ const verifyIfContractHasExpiredDebt = async (packageId) => {
 export default {
     getAllClientDebtCollections,
     getAllContractDebtCollections,
+    getAllContractDebtCollectionsPending,
     getAllClientPaidBillings,
     getInstallmentPayments,
     payOneClientDebts,
