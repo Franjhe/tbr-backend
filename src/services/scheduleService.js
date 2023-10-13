@@ -367,6 +367,18 @@ const getTherapistAppointments = async (userData, therapistId, fbusqueda) => {
     return appointments;
 }
 
+const startAppointment = async (userData, appointmentId, signature, observation) => {
+    const updatedAppointment = await Schedule.startAppointment(appointmentId, signature, observation);
+
+    if (updatedAppointment.error) {
+        return {
+            error: updatedAppointment.error
+        }
+    }
+
+    return updatedAppointment;
+}
+
 export default {
     getOneWeekSchedule,
     getCabinNonBusinessHours,
@@ -377,5 +389,6 @@ export default {
     deleteOneNonBusinessHour,
     getOneBranchAppointmentsByDate,
     getOneBranchNonBusinessHoursByDate,
-    getTherapistAppointments
+    getTherapistAppointments,
+    startAppointment,
 };

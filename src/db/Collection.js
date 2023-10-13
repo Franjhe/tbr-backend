@@ -54,7 +54,6 @@ const getAllContractDebtCollections = async (packageId) => {
 }
 
 const getAllContractDebtCollectionsPending = async (Pending) => {
-    console.log(Pending)
     try {
         let pool = await sql.connect(sqlConfig);
         let result = await pool.request()

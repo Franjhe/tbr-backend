@@ -470,4 +470,6 @@ router
 
     .post("/therapists/:therapistId", verifyIfTherapistExists, scheduleController.getTherapistAppointments)
 
+    .patch("/therapists/start/:appointmentId", scheduleController.startAppointment)
+
     export default router;

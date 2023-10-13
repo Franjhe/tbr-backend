@@ -334,6 +334,27 @@ const getTherapistAppointments = async (req, res) => {
         });
 }
 
+const startAppointment = async (req, res) => {
+    const updatedAppointment =await scheduleService.startAppointment(res.locals.decodedJWT, req.params.appointmentId, req.body.xfirma_entrada, req.body.xobservaciones_entrada);
+
+    if (updatedAppointment.errorBadRequest) {
+        return res.status(400).send({
+            status: false,
+            message: updatedAppointment.errorBadRequest,
+        });
+    }
+    if (updatedAppointment.error) {
+        return res.status(500).send({
+            status: false,
+            message: updatedAppointment.error,
+        });
+    }
+    return res.status(201).send({
+        status: true,
+        message: `Se ha iniciado la cita exitosamente.`,
+    });
+};
+
 export default {
     getOneWeekSchedule,
     getCabinNonBusinessHours,
@@ -344,5 +365,6 @@ export default {
     deleteOneNonBusinessHour,
     getOneBranchAppointmentsByDate,
     getOneBranchNonBusinessHoursByDate,
-    getTherapistAppointments
+    getTherapistAppointments,
+    startAppointment,
 };
