@@ -379,6 +379,30 @@ const startAppointment = async (userData, appointmentId, signature, observation)
     return updatedAppointment;
 }
 
+const getStartedAppointmentDetail = async (userData, appointmentId) => {
+    const appointmentDetail = await Schedule.getStartedAppointmentDetail(appointmentId);
+
+    if (appointmentDetail.error) {
+        return {
+            error: appointmentDetail.error,
+        };
+    }
+
+    return appointmentDetail;
+}
+
+const endAppointment = async (userData, appointmentId, signature, observation) => {
+    const updatedAppointment = await Schedule.endAppointment(appointmentId, signature, observation);
+
+    if (updatedAppointment.error) {
+        return {
+            error: updatedAppointment.error
+        }
+    }
+
+    return updatedAppointment;
+}
+
 export default {
     getOneWeekSchedule,
     getCabinNonBusinessHours,
@@ -391,4 +415,6 @@ export default {
     getOneBranchNonBusinessHoursByDate,
     getTherapistAppointments,
     startAppointment,
+    getStartedAppointmentDetail,
+    endAppointment
 };

@@ -630,6 +630,94 @@ const startAppointment = async (appointmentId, signature, observation) => {
     }
 };
 
+const getStartedAppointmentDetail = async (appointmentId) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool
+            .request()
+            .input("ccita", sql.Int, appointmentId)
+            .query(
+                "select ncliente, csucursal, ccabina, cestatus_cita, cterapeuta, ccausa_anul, fentrada, fsalida, bactivo, xobservaciones_entrada, xfirma_entrada from agcitas where ccita = @ccita"
+            );
+        return result.recordset[0];
+    } catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message,
+        };
+    }
+};
+
+const endAppointment = async (appointmentId, signature, observation) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        //Busca si la cita seleccionada es la cita principal, o es la cita secundaria de doble máquina
+        let result = await pool
+            .request()
+            .input("ccita", sql.Int, appointmentId)
+            .query("select ccitaprincipal from agcitas where ccita = @ccita");
+        //Si es una cita secundaria, entonces se actualiza la cita principal primero.
+        if (result.recordset[0].ccitaprincipal) {
+            await pool
+                .request()
+                .input("ccita", sql.Int, result.recordset[0].ccitaprincipal)
+                .input("xfirma_salida", sql.NVarChar, signature)
+                .input(
+                    "xobservaciones_salida",
+                    sql.NVarChar,
+                    observation ? observation : undefined
+                )
+                .input("cestatus_cita", sql.Int, 4)
+                .query(
+                    "update agcitas set xobservaciones_salida = @xobservaciones_salida, xfirma_salida = @xfirma_salida,cestatus_cita = @cestatus_cita where ccita = @ccita"
+                );
+            await pool
+                .request()
+                .input("ccita", sql.Int, appointmentId)
+                .input("xfirma_salida", sql.NVarChar, signature)
+                .input(
+                    "xobservaciones_salida",
+                    sql.NVarChar,
+                    observation ? observation : undefined
+                )
+                .input("cestatus_cita", sql.Int, 4)
+                .query(
+                    "update agcitas set xobservaciones_salida = @xobservaciones_salida, xfirma_salida = @xfirma_salida, cestatus_cita = @cestatus_cita where ccita = @ccita"
+                );
+        }
+        //Si la cita es principal, entonces se actualizan ambas al mismo tiempo
+        else {
+            await pool
+                .request()
+                .input("ccita", sql.Int, appointmentId)
+                .input("xfirma_salida", sql.NVarChar, signature)
+                .input(
+                    "xobservaciones_salida",
+                    sql.NVarChar,
+                    observation ? observation : undefined
+                )
+                .input("cestatus_cita", sql.Int, 4)
+                .query(
+                    "update agcitas set xobservaciones_salida = @xobservaciones_salida, xfirma_salida = @xfirma_salida, cestatus_cita = @cestatus_cita where ccita = @ccita or ccitaprincipal = @ccita"
+                );
+        }
+        /*let appointment = await pool.request()
+            .input("ccita", sql.Int, appointmentId)
+            .query(
+                "select * from agcitas where ccita = @ccita"
+            );
+        
+        console.log(appointment.recordset);*/
+
+        return true;
+    } catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message,
+        };
+    }
+};
+
 export default {
     getOneWeekSchedule,
     getOneAppointment,
@@ -646,4 +734,6 @@ export default {
     getNonBusinessHoursByDate,
     getTherapistAppointments,
     startAppointment,
+    getStartedAppointmentDetail,
+    endAppointment
 };

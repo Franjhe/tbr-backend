@@ -355,6 +355,63 @@ const startAppointment = async (req, res) => {
     });
 };
 
+const getStartedAppointmentDetail = async (req, res) => {
+    const appointmentDetail =
+        await scheduleService.getStartedAppointmentDetail(
+            res.locals.decodedJWT, req.params.appointmentId
+        );
+    if (appointmentDetail.permissionError) {
+        return res.status(403).send({
+            status: false,
+            message: appointmentDetail.permissionError,
+        });
+    }
+    if (appointmentDetail.errorNotFound) {
+        return res.status(404).send({
+            status: false,
+            message: appointmentDetail.errorNotFound,
+        });
+    }
+    if (appointmentDetail.error) {
+        return res.status(500).send({
+            status: false,
+            message: appointmentDetail.error,
+        });
+    }
+    return res.status(200).send({
+        status: true,
+        data: {
+            appointmentDetail: appointmentDetail,
+        },
+    });
+};
+
+const endAppointment = async (req, res) => {
+    const updatedAppointment = await scheduleService.endAppointment(
+        res.locals.decodedJWT,
+        req.params.appointmentId,
+        req.body.xfirma_salida,
+        req.body.xobservaciones_salida
+    );
+
+    if (updatedAppointment.errorBadRequest) {
+        return res.status(400).send({
+            status: false,
+            message: updatedAppointment.errorBadRequest,
+        });
+    }
+    if (updatedAppointment.error) {
+        return res.status(500).send({
+            status: false,
+            message: updatedAppointment.error,
+        });
+    }
+    return res.status(201).send({
+        status: true,
+        message: `Se ha finalizado la cita exitosamente.`,
+    });
+};
+
 export default {
     getOneWeekSchedule,
     getCabinNonBusinessHours,
@@ -367,4 +424,6 @@ export default {
     getOneBranchNonBusinessHoursByDate,
     getTherapistAppointments,
     startAppointment,
+    getStartedAppointmentDetail,
+    endAppointment
 };

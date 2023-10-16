@@ -470,6 +470,10 @@ router
 
     .post("/therapists/:therapistId", verifyIfTherapistExists, scheduleController.getTherapistAppointments)
 
-    .patch("/therapists/start/:appointmentId", scheduleController.startAppointment)
+    .patch("/therapists/start/:appointmentId", verifyIfAppointmentExists, scheduleController.startAppointment)
 
+    .get("/therapists/start/:appointmentId", verifyIfAppointmentExists, scheduleController.getStartedAppointmentDetail)
+
+    .patch("/therapists/end/:appointmentId", verifyIfAppointmentExists, scheduleController.endAppointment)
+    
     export default router;
