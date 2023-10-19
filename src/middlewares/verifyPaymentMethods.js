@@ -15,6 +15,21 @@ const verifyCash = (paymentMethod) => {
     return true;
 }
 
+const verifyTransfer = (paymentMethod) => {
+    if (
+        paymentMethod.ctipo_tarjeta ||
+        paymentMethod.cbanco ||
+        paymentMethod.xtarjeta ||
+        paymentMethod.xvencimiento ||
+        paymentMethod.cpos
+    ) {
+        return {
+            error: 'Si el tipo de método de pago es de efectivo, no puede tener campos de tarjeta activos.'
+        }
+    }
+    return true;
+}
+
 const verifyCard = async (paymentMethod) => {
     if (
         !paymentMethod.ctipo_tarjeta ||
@@ -56,6 +71,18 @@ const verifyPaymentMethods = async (req, res, next) => {
     for (let i = 0; i < paymentMethods.length; i++) {
         if (paymentMethods[i].cmodalidad_pago === 1) {
             let verifiedCash = verifyCash(paymentMethods[i]);
+            if (verifiedCash.error) {
+                return res
+                    .status(400)
+                    .send({
+                        status: false,
+                        message: verifiedCash.error
+                    })
+            }
+            totalAmount += paymentMethods[i].mpago;
+        }
+        if (paymentMethods[i].cmodalidad_pago === 5) {
+            let verifiedCash = verifyTransfer(paymentMethods[i]);
             if (verifiedCash.error) {
                 return res
                     .status(400)
