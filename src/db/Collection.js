@@ -133,8 +133,9 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
                 .input('xtarjeta', sql.NVarChar, paymentDistribution[i].xtarjeta ? paymentDistribution[i].xtarjeta : undefined)
                 .input('xvencimiento', sql.NVarChar, paymentDistribution[i].xvencimiento ? paymentDistribution[i].xvencimiento : undefined)
                 .input('xobservacion', sql.NVarChar, paymentDistribution[i].xobservacion ? paymentDistribution[i].xobservacion : undefined)
-                .query('insert into cbpagos (cmodalidad_pago, ctipo_tarjeta, cbanco, cpos, mpago, xtarjeta, xvencimiento, xobservacion) output inserted.cpago '
-                                  + 'values (@cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion)'
+                .input('xreferencia', sql.NVarChar, paymentDistribution[i].xreferencia ? paymentDistribution[i].xreferencia : undefined)
+                .query('insert into cbpagos (cmodalidad_pago, ctipo_tarjeta, cbanco, cpos, mpago, xtarjeta, xvencimiento, xobservacion,xreferencia) output inserted.cpago '
+                                  + 'values (@cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion, @xreferencia)'
                 )
             resultPaymentDistribution.push(result.recordset[0]);
         }

@@ -50,8 +50,9 @@ const createReceiptPaymentDistribution = async (receiptId, receiptPaymentDistrib
                 .input('xtarjeta', sql.NVarChar, receiptPaymentDistribution[i].xtarjeta ? receiptPaymentDistribution[i].xtarjeta : undefined)
                 .input('xvencimiento', sql.NVarChar, receiptPaymentDistribution[i].xvencimiento ? receiptPaymentDistribution[i].xvencimiento : undefined)
                 .input('xobservacion', sql.NVarChar, receiptPaymentDistribution[i].xobservacion ? receiptPaymentDistribution[i].xobservacion : undefined)
-                .query('insert into cbpagos (crecibo, cmodalidad_pago, ctipo_tarjeta, cbanco, cpos, mpago, xtarjeta, xvencimiento, xobservacion) output inserted.cpago '
-                                  + 'values (@crecibo, @cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion)'
+                .input('xreferencia', sql.NVarChar, receiptPaymentDistribution[i].xreferencia ? receiptPaymentDistribution[i].xreferencia : undefined)
+                .query('insert into cbpagos (crecibo, cmodalidad_pago, ctipo_tarjeta, cbanco, cpos, mpago, xtarjeta, xvencimiento, xobservacion, xreferencia) output inserted.cpago '
+                                  + 'values (@crecibo, @cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion, @xreferencia)'
                 )
                 resultPaymentDistribution.push(result.recordset[0]);
         }

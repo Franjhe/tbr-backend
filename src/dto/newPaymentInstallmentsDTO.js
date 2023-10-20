@@ -79,6 +79,11 @@ const NewPaymentInstallmentsDTOSchema = Type.Object(
                             maxLength: 100,
                         }
                     ),
+                    xreferencia: Type.Optional(
+                        Type.Union([Type.String(), Type.Null()]), {
+                            maxLength: 100,
+                        }
+                    ),
                 },
                 {
                     additionalProperties: false
