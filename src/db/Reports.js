@@ -34,6 +34,27 @@ const reportsCollection = async (reportsCollection) => {
     }
 }
 
+const reportsSales = async (reportsSales) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool.request()
+            .input('csucursal', sql.Int, reportsSales.csucursal)
+            .input('fdesde', sql.Date, reportsSales.fdesde)
+            .input('fhasta', sql.Date, reportsSales.fhasta)
+            .input('igarantizada', sql.Char, 'S')
+            .input('bactivo', sql.Bit, true)
+            .query('select * from vwbuscarcontratosxvendedores where bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta and igarantizada = @igarantizada');
+        return result.recordset;
+    }
+    catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
 export default {
-    reportsCollection
+    reportsCollection,
+    reportsSales
 }

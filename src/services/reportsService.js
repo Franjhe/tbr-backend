@@ -10,6 +10,17 @@ const reportsCollection = async (reportsCollection) => {
     return collection;
 }
 
+const reportsSales = async (reportsSales) => {
+    const sales = await Reports.reportsSales(reportsSales);
+    if (sales.error) {
+        return {
+            error: sales.error
+        }
+    }
+    return sales;
+}
+
 export default {
-    reportsCollection
+    reportsCollection,
+    reportsSales
 }

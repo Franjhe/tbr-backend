@@ -5,6 +5,7 @@ const router = express.Router();
 
 router
 
-.post("/collection", reportsController.reportsCollection)
+    .post("/collection", reportsController.reportsCollection)
+    .post("/sales", reportsController.reportsSales)
 
 export default router;
