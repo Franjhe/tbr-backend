@@ -20,7 +20,18 @@ const reportsSales = async (reportsSales) => {
     return sales;
 }
 
+const reportsCancelledAppointments = async (reportsCancelledAppointments) => {
+    const cancelled = await Reports.reportsCancelledAppointments(reportsCancelledAppointments);
+    if (cancelled.error) {
+        return {
+            error: cancelled.error
+        }
+    }
+    return cancelled;
+}
+
 export default {
     reportsCollection,
-    reportsSales
+    reportsSales,
+    reportsCancelledAppointments
 }

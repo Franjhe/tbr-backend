@@ -54,7 +54,26 @@ const reportsSales = async (reportsSales) => {
     }
 }
 
+const reportsCancelledAppointments = async (reportsCancelledAppointments) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool.request()
+            .input('csucursal', sql.Int, reportsCancelledAppointments.csucursal)
+            .input('fdesde', sql.Date, reportsCancelledAppointments.fdesde)
+            .input('fhasta', sql.Date, reportsCancelledAppointments.fhasta)
+            .query('select * from vwbuscarcitasanuladas where csucursal = @csucursal and fentrada >= @fdesde AND fentrada <= @fhasta');
+        return result.recordset;
+    }
+    catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
 export default {
     reportsCollection,
-    reportsSales
+    reportsSales,
+    reportsCancelledAppointments
 }
