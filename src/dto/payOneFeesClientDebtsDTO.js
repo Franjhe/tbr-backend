@@ -3,9 +3,13 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import addErrors from 'ajv-errors';
 
-const PayOneClientDebtsDTOSchema = Type.Object(
+const PayOneFeesClientDebtsDTOSchema = Type.Object(
     {
         ncliente: Type.Integer({
+            minimum: 1,
+            maximum: 2147483647
+        }),
+        ccuota: Type.Integer({
             minimum: 1,
             maximum: 2147483647
         }),
@@ -89,9 +93,9 @@ const ajv = new Ajv({ allErrors: true });
 addFormats(ajv, ['date']);
 addErrors(ajv);
 
-const validate = ajv.compile(PayOneClientDebtsDTOSchema);
+const validate = ajv.compile(PayOneFeesClientDebtsDTOSchema);
 
-const validatePayOneClientDebtsDTO = (req, res, next) => {
+const validatePayOneFeesClientDebtsDTO = (req, res, next) => {
     const isDTOValid = validate(req.body);
     if(!isDTOValid) {
         return res
@@ -104,6 +108,6 @@ const validatePayOneClientDebtsDTO = (req, res, next) => {
 }
 
 export default {
-    PayOneClientDebtsDTOSchema,
-    validatePayOneClientDebtsDTO
+    PayOneFeesClientDebtsDTOSchema,
+    validatePayOneFeesClientDebtsDTO
 };

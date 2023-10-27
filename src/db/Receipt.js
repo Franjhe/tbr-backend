@@ -4,7 +4,8 @@ const sqlConfig = {
     user: process.env.USER_BD,
     password: process.env.PASSWORD_BD,
     server: process.env.SERVER_BD,
-    database: process.env.NAME_BD,
+        database: process.env.NAME_BD,
+    requestTimeout: 60000, 
     options: {
         encrypt: true,
         trustServerCertificate: true
@@ -50,8 +51,9 @@ const createReceiptPaymentDistribution = async (receiptId, receiptPaymentDistrib
                 .input('xtarjeta', sql.NVarChar, receiptPaymentDistribution[i].xtarjeta ? receiptPaymentDistribution[i].xtarjeta : undefined)
                 .input('xvencimiento', sql.NVarChar, receiptPaymentDistribution[i].xvencimiento ? receiptPaymentDistribution[i].xvencimiento : undefined)
                 .input('xobservacion', sql.NVarChar, receiptPaymentDistribution[i].xobservacion ? receiptPaymentDistribution[i].xobservacion : undefined)
-                .query('insert into cbpagos (crecibo, cmodalidad_pago, ctipo_tarjeta, cbanco, cpos, mpago, xtarjeta, xvencimiento, xobservacion) output inserted.cpago '
-                                  + 'values (@crecibo, @cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion)'
+                .input('xreferencia', sql.NVarChar, receiptPaymentDistribution[i].xreferencia ? receiptPaymentDistribution[i].xreferencia : undefined)
+                .query('insert into cbpagos (crecibo, cmodalidad_pago, ctipo_tarjeta, cbanco, cpos, mpago, xtarjeta, xvencimiento, xobservacion, xreferencia) output inserted.cpago '
+                                  + 'values (@crecibo, @cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion, @xreferencia)'
                 )
                 resultPaymentDistribution.push(result.recordset[0]);
         }
