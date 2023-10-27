@@ -58,7 +58,7 @@ app.use("/api/v1/collections", authenticate, v1CollectionRouter);
 app.use("/api/v1/schedules", authenticate, v1ScheduleRouter);
 app.use("/api/v1/cabins", authenticate, v1CabinRouter);
 
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 5252; 
 
 app.listen(PORT, () => { 
     console.log(`\n API is listening on port ${PORT}`);
