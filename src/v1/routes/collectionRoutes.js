@@ -4,6 +4,7 @@ import authorizate from '../../middlewares/authorizate.js'
 import verifyIfClientExists from '../../middlewares/verifyIfClientExists.js';
 import searchClientDebtCollectionsDTO from '../../dto/searchClientDebtCollectionsDTO.js';
 import payOneClientDebtsDTO from '../../dto/payOneClientDebtsDTO.js';
+import payOneFeesClientDebtsDTO from '../../dto/payOneFeesClientDebtsDTO.js';
 import SearchCollectionPendingDTOSchema from '../../dto/searchCollectionPendingDTO.js';
 
 
@@ -241,6 +242,10 @@ router
      */
     .post('/', authorizate(2, true, false, false), payOneClientDebtsDTO.validatePayOneClientDebtsDTO, verifyIfClientExists, collectionController.payOneClientDebts)
 
+
+    .post('/OneFeesClient', authorizate(2, true, false, false), payOneFeesClientDebtsDTO.validatePayOneFeesClientDebtsDTO, verifyIfClientExists, collectionController.payOneFeesClientDebts)
+
+
         /**
      * @swagger
      * /api/v1/collections/branch:
@@ -303,6 +308,6 @@ router
      *             schema:
      *               $ref: '#/components/responses/ErrorResponse' 
      */
-        .post('/pending-collections', authorizate(2, true, false, false), SearchCollectionPendingDTOSchema.validateSearchCollectionPendingsDTO, collectionController.getAllDebtCollectionsPending)
+    .post('/pending-collections', authorizate(2, true, false, false), SearchCollectionPendingDTOSchema.validateSearchCollectionPendingsDTO, collectionController.getAllDebtCollectionsPending)
 
 export default router;

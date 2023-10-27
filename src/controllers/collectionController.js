@@ -74,6 +74,40 @@ const payOneClientDebts = async (req, res) => {
         });
 }
 
+const payOneFeesClientDebts = async (req, res) => {
+    const paidDebts = await collectionService.payOneFeesClientDebts(res.locals.decodedJWT, req.body);
+    if (paidDebts.errorBadRequest) {
+        return res
+            .status(400)
+            .send({
+                status: false,
+                message: paidDebts.errorBadRequest
+            });
+    }
+    if (paidDebts.permissionError) {
+        return res
+            .status(404)
+            .send({
+                status: false,
+                message: paidDebts.permissionError
+            });
+    }
+    if (paidDebts.error) {
+        return res
+            .status(500)
+            .send({
+                status: false,
+                message: paidDebts.error
+            });
+    }
+    return res
+        .status(200)
+        .send({
+            status: true,
+            message: 'Pago registrado exitosamente.'
+        });
+}
+
 const getAllDebtCollectionsPending = async (req, res) => {
     const pendingDebts = await collectionService.getAllDebtCollectionsPending(res.locals.decodedJWT, req.body);
     if (pendingDebts.errorBadRequest) {
@@ -115,5 +149,6 @@ export default {
     getAllClientDebtCollections,
     getAllClientPaidBillings,
     payOneClientDebts,
+    payOneFeesClientDebts,
     getAllDebtCollectionsPending
 }

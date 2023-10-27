@@ -127,7 +127,7 @@ const payOneClientDebts = async (userData, paymentData) => {
             debt.mpendiente = debt.mcuota
         }
     }
-    const totalDebt = debtCdebtCollectionsollections.reduce((total, debt) => total + debt.mpendiente, 0)
+    const totalDebt = debtCollections.reduce((total, debt) => total + debt.mpendiente, 0)
     let totalPaymentAmount = paymentData.distribucionPago.reduce((totalAmount, paymentData) => totalAmount + paymentData.mpago, 0);
     if (totalDebt < totalPaymentAmount) {
         return {
@@ -204,6 +204,54 @@ const payOneClientDebts = async (userData, paymentData) => {
     return paidDebts;
 }
 
+const payOneFeesClientDebts = async (userData, paymentData) => {
+    let actualDate = moment().format('YYYY-MM-DD');
+    if (paymentData.fpago > actualDate) {
+        return {
+            errorBadRequest: 'No se puede insertar una fecha de pago mayor a la fecha actual.'
+        }
+    }
+    if (!userData.bmaster && paymentData.fpago < actualDate) {
+        return {
+            permissionError: 'No tiene permisos para colocar una fecha de pago menor a la fecha actual.'
+        }
+    }
+    console.log(userData, paymentData)
+    const clientId = paymentData.ncliente;
+    const npaquete = paymentData.npaquete;
+    const contracts = await Contract.getOneContract(npaquete);
+
+     if (contracts.error) {
+        return {
+            error: contractsdebtCollections.error
+        }
+    }
+
+    let totalPaymentAmount = paymentData.distribucionPago.reduce((totalAmount, paymentData) => totalAmount + paymentData.mpago, 0);
+    let xconceptopago
+
+    if (paymentData.mpago > totalPaymentAmount) {
+        let xconceptopago = 'Parcial de tratamiento'
+        const paidDebts = await Collection.payOneFeesClientDebts(userData, clientId, paymentData , npaquete , totalPaymentAmount , xconceptopago);
+        if (paidDebts.error) {
+            return {
+                error: paidDebts.error
+            }
+        }
+    }
+    else {
+        let xconceptopago = 'Total de tratamiento'
+        const paidDebts = await Collection.payOneFeesClientDebts(userData, clientId, paymentData , npaquete , totalPaymentAmount , xconceptopago);
+        if (paidDebts.error) {
+            return {
+                error: paidDebts.error
+            }
+        }
+
+    }
+    return paidDebts;
+}
+
 const getAllDebtCollectionsPending = async (userData, searchData) => {
     if (!userData.bmaster) {
         return {
@@ -230,5 +278,6 @@ export default {
     getAllClientDebtCollections,
     getAllClientPaidBillings,
     payOneClientDebts,
+    payOneFeesClientDebts,
     getAllDebtCollectionsPending
 }

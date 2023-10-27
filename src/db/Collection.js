@@ -4,7 +4,8 @@ const sqlConfig = {
     user: process.env.USER_BD,
     password: process.env.PASSWORD_BD,
     server: process.env.SERVER_BD,
-    database: process.env.NAME_BD,
+        database: process.env.NAME_BD,
+    requestTimeout: 60000, 
     options: {
         encrypt: true,
         trustServerCertificate: true
@@ -188,6 +189,68 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
     }
 }
 
+const payOneFeesClientDebts = async (userData, clientId, paymentData , npaquete , totalPaymentAmount , xconceptopago) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let resultPaymentDistribution = [];
+        //Inserta la distribucion de pago.
+        for (let i = 0; i < paymentData.distribucionPago.length; i++) {
+            let result = await pool.request()
+                .input('cmodalidad_pago', sql.Int, paymentData.distribucionPago[i].cmodalidad_pago)
+                .input('ctipo_tarjeta', sql.Int, paymentData.distribucionPago[i].ctipo_tarjeta ? paymentData.distribucionPago[i].ctipo_tarjeta : undefined)
+                .input('cbanco', sql.Int, paymentData.distribucionPago[i].cbanco ? paymentData.distribucionPago[i].cbanco : undefined)
+                .input('cpos', sql.Int, paymentData.distribucionPago[i].cpos ? paymentData.distribucionPago[i].cpos : undefined)
+                .input('mpago', sql.Numeric(11,2), paymentData.distribucionPago[i].mpago)
+                .input('xtarjeta', sql.NVarChar, paymentData.distribucionPago[i].xtarjeta ? paymentData.distribucionPago[i].xtarjeta : undefined)
+                .input('xvencimiento', sql.NVarChar, paymentData.distribucionPago[i].xvencimiento ? paymentData.distribucionPago[i].xvencimiento : undefined)
+                .input('xobservacion', sql.NVarChar, paymentData.distribucionPago[i].xobservacion ? paymentData.distribucionPago[i].xobservacion : undefined)
+                .input('xreferencia', sql.NVarChar, paymentData.distribucionPago[i].xreferencia ? paymentData.distribucionPago[i].xreferencia : undefined)
+                .query('insert into cbpagos (cmodalidad_pago, ctipo_tarjeta, cbanco, cpos, mpago, xtarjeta, xvencimiento, xobservacion,xreferencia) output inserted.cpago '
+                                  + 'values (@cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion, @xreferencia)'
+                )
+            resultPaymentDistribution.push(result.recordset[0]);
+        }
+        //Inserta un recibo por cada contrato.
+            let result = await pool.request()
+                .input('npaquete', sql.NVarChar, npaquete)
+                .input('ncliente', sql.Int, clientId)
+                .input('mtotal', sql.Numeric(11,2), totalPaymentAmount)
+                .input('fcobro', sql.Date, paymentData.fpago)
+                .input('xconceptopago', sql.NVarChar, xconceptopago)
+                .input('cvendedor', sql.Int, userData.cusuario)
+                .input('bactivo', sql.Bit, true)
+                .query('insert into cbrecibos (npaquete, ncliente, mtotal, fcobro, xconceptopago, cvendedor, bactivo) output inserted.crecibo '
+                                    + 'values (@npaquete, @ncliente, @mtotal, @fcobro, @xconceptopago, @cvendedor, @bactivo)'
+                )
+            //Inserta el recibo y la distribucion del pago en el detalle.
+            for (let j = 0; j < resultPaymentDistribution.length; j++) {
+                await pool.request()
+                    .input('crecibo', sql.Int, result.recordset[0].crecibo)
+                    .input('cpago', sql.Int, resultPaymentDistribution[j].cpago)
+                    .query('insert into cbpagos_det (crecibo, cpago) values (@crecibo, @cpago)')
+            }
+            //Inserta cuanto se pago de cada cuota en el recibo.
+
+            for (let i = 0; i < paymentData.distribucionPago.length; i++) {
+                await pool.request()
+                .input('crecibo', sql.Int, result.recordset[0].crecibo)
+                .input('ccuota', sql.Int, paymentData.ccuota)
+                .input('npaquete', sql.NVarChar, npaquete)
+                .input('mmonto_cuota', sql.Numeric(11,2), paymentData.distribucionPago[i].mpago)
+                .query('insert into cbrecibos_det (crecibo, ccuota, npaquete, mmonto_cuota) values (@crecibo, @ccuota, @npaquete, @mmonto_cuota)')
+            }
+
+
+        return true;
+    }
+    catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
 const verifyIfContractHasExpiredDebt = async (packageId) => {
     try {
         let pool = await sql.connect(sqlConfig);
@@ -215,5 +278,6 @@ export default {
     getAllClientPaidBillings,
     getInstallmentPayments,
     payOneClientDebts,
+    payOneFeesClientDebts,
     verifyIfContractHasExpiredDebt
 }

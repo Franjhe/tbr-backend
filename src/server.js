@@ -26,6 +26,7 @@ import v1CancellationCauseRouter from './v1/routes/cancellationCauseRoutes.js';
 import v1CollectionRouter from './v1/routes/collectionRoutes.js';
 import v1ScheduleRouter from './v1/routes/scheduleRoutes.js';
 import v1CabinRouter from './v1/routes/cabinRoutes.js';
+import v1ReportsRouter from './v1/routes/reportsRoutes.js';
 
 const app = express(); 
 
@@ -57,6 +58,7 @@ app.use("/api/v1/cancellation-cause", authenticate, v1CancellationCauseRouter);
 app.use("/api/v1/collections", authenticate, v1CollectionRouter);
 app.use("/api/v1/schedules", authenticate, v1ScheduleRouter);
 app.use("/api/v1/cabins", authenticate, v1CabinRouter);
+app.use("/api/v1/reports", authenticate, v1ReportsRouter);
 
 const PORT = process.env.PORT || 5252; 
 
