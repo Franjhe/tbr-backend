@@ -10,6 +10,7 @@ import authorizate from '../../middlewares/authorizate.js';
 import verifyIfBranchExists from '../../middlewares/verifyIfBranchExists.js';
 import verifyIfContractExists from '../../middlewares/verifyIfContractExists.js';
 import verifyIfClientExists from '../../middlewares/verifyIfClientExists.js';
+import verifyIfTheClientIsInAnotherCabin from '../../middlewares/verifyIfTheClientIsInAnotherCabin.js'
 import verifyIfClientBelongsToBranch from '../../middlewares/verifyIfClientBelongsToBranch.js';
 import verifyIfTherapistExists from '../../middlewares/verifyIfTherapistExists.js';
 import verifyIfTherapistBelongsToBranch from '../../middlewares/verifyIfTherapistBelongsToBranch.js';
@@ -213,7 +214,9 @@ router
      *             schema:
      *               $ref: '#/components/responses/ErrorResponse' 
      */
-    .post("/", authorizate(11, true, false, false), newAppointmentDTO.validateNewAppointmentDTO, verifyIfBranchExists, verifyIfClientExists, verifyIfClientBelongsToBranch, verifyIfTherapistExists, verifyIfTherapistBelongsToBranch, verifyIfCabinExists, verifyIfCabinBelongsToBranch, scheduleController.createNewAppointment)
+
+    //verifyIfTheClientIsInAnotherCabin pendiente
+    .post("/", authorizate(11, true, false, false), newAppointmentDTO.validateNewAppointmentDTO, verifyIfBranchExists, verifyIfTheClientIsInAnotherCabin, verifyIfClientExists, verifyIfClientBelongsToBranch, verifyIfTherapistExists, verifyIfTherapistBelongsToBranch, verifyIfCabinExists, verifyIfCabinBelongsToBranch, scheduleController.createNewAppointment)
 
 
     .post("/non-business-hour/search", scheduleController.getCabinNonBusinessHours)

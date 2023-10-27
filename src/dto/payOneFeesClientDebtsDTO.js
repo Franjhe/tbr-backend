@@ -19,6 +19,10 @@ const PayOneFeesClientDebtsDTOSchema = Type.Object(
                 format: 'must match format yyyy-mm-dd'
             },
         }),
+
+        npaquete: Type.String({
+            maxLength: 16
+        }),
         distribucionPago: Type.Array(
             Type.Object(
                 {
@@ -97,6 +101,7 @@ const validate = ajv.compile(PayOneFeesClientDebtsDTOSchema);
 
 const validatePayOneFeesClientDebtsDTO = (req, res, next) => {
     const isDTOValid = validate(req.body);
+
     if(!isDTOValid) {
         return res
             .status(400)

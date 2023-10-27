@@ -72,6 +72,24 @@ const getOneAppointment = async(appointmentId) => {
     }
 }
 
+const getClientItIsAnotherCabin = async() =>{
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool.request()
+            .query(
+                'select ncliente,ccabina, cgrupo from vwbuscarclienteencabinas'
+                )
+        return result.recordset[0];
+    }
+    catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+
+}
+
 const getCabinNonBusinessHours = async(startOfWeek, endOfWeek, cabinId) => {
     try {
         let pool = await sql.connect(sqlConfig);
@@ -573,6 +591,7 @@ const getTherapistAppointments = async (therapistId, branchId, fentrada, fsalida
         };
     }
 };
+
 const startAppointment = async (appointmentId, signature, observation) => {
     try {
         let pool = await sql.connect(sqlConfig);
@@ -736,5 +755,6 @@ export default {
     getTherapistAppointments,
     startAppointment,
     getStartedAppointmentDetail,
-    endAppointment
+    endAppointment,
+    getClientItIsAnotherCabin
 };
