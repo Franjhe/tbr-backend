@@ -87,7 +87,7 @@ const payOneClientDebts = async (userData, paymentData) => {
         }
     }
     const clientId = paymentData.ncliente;
-    const contracts = await Contract.getClientAssociatedContracts(clientId);
+    const contracts = await Contract.getClientAssociatedContracts(clientId);  //lista de contratos del cliente 
     if (contracts.error) {
         return {
             error: contractsdebtCollections.error
@@ -95,7 +95,7 @@ const payOneClientDebts = async (userData, paymentData) => {
     }
     let debtCollections = [];
     for (let contract of contracts) {
-        let contractDebtCollection = await Collection.getAllContractDebtCollections(contract.npaquete);
+        let contractDebtCollection = await Collection.getAllContractDebtCollections(contract.npaquete); //cobranza del contrato
         if (contractDebtCollection.error) {
             return {
                 error: contractDebtCollection.error
@@ -105,7 +105,7 @@ const payOneClientDebts = async (userData, paymentData) => {
             debtCollections.push(contractDebt);
         }
     }
-    debtCollections.sort(function(a, b) {
+    debtCollections.sort(function(a, b) {  
         let dateA = new Date(a.fpago);
         let dateB = new Date(b.fpago);
         return dateA - dateB;
@@ -205,49 +205,97 @@ const payOneClientDebts = async (userData, paymentData) => {
 }
 
 const payOneFeesClientDebts = async (userData, paymentData) => {
+    //Validaciones de fecha 
     let actualDate = moment().format('YYYY-MM-DD');
+
     if (paymentData.fpago > actualDate) {
         return {
             errorBadRequest: 'No se puede insertar una fecha de pago mayor a la fecha actual.'
         }
     }
+
     if (!userData.bmaster && paymentData.fpago < actualDate) {
         return {
             permissionError: 'No tiene permisos para colocar una fecha de pago menor a la fecha actual.'
         }
     }
-    console.log(userData, paymentData)
-    const clientId = paymentData.ncliente;
-    const npaquete = paymentData.npaquete;
-    const contracts = await Contract.getOneContract(npaquete);
 
-     if (contracts.error) {
+    let debtCollections = [];
+    let contractDebtCollection = await Collection.getAllContractDebtCollections(paymentData.npaquete); //cobranza del contrato
+    if (contractDebtCollection.error) {
         return {
-            error: contractsdebtCollections.error
+            error: contractDebtCollection.error
+        }
+    }
+    for (let contractDebt of contractDebtCollection) {
+        debtCollections.push(contractDebt);
+    }
+
+
+    let totalPaymentAmount = paymentData.distribucionPago.reduce((totalAmount, paymentData) => totalAmount + paymentData.mpago, 0);  //suma de montos de la distribucion de pago de la cuotas
+
+    for (let i = 0; i < debtCollections.length; i++) {
+        //Se buscan los abonos de cada cuota.
+        let debt = debtCollections[i];
+        let paidDebt = await Collection.getInstallmentPayments(paymentData.npaquete, paymentData.ccuota);
+        if (paidDebt) {
+            debt.mpendiente = paidDebt - totalPaymentAmount;
+        }
+        else {
+            debt.mpendiente = totalPaymentAmount
+        }
+    }
+    const totalDebt = debtCollections.reduce((total, debt) => total + debt.mpendiente, 0)
+
+    if (totalDebt < totalPaymentAmount) {
+        return {
+            errorBadRequest: 'El monto del pago no puede ser superior al monto total de la deuda del cliente.'
         }
     }
 
-    let totalPaymentAmount = paymentData.distribucionPago.reduce((totalAmount, paymentData) => totalAmount + paymentData.mpago, 0);
-    let xconceptopago
-
-    if (paymentData.mpago > totalPaymentAmount) {
-        let xconceptopago = 'Parcial de tratamiento'
-        const paidDebts = await Collection.payOneFeesClientDebts(userData, clientId, paymentData , npaquete , totalPaymentAmount , xconceptopago);
-        if (paidDebts.error) {
-            return {
-                error: paidDebts.error
+    let paidInstallments = [];
+    for (let i = 0; i < debtCollections.length; i++) {
+        let debt = debtCollections[i];
+        if (totalPaymentAmount > 0) {
+            if (totalPaymentAmount >= debt.mpendiente) {
+                totalPaymentAmount -= debt.mpendiente;
+                debt.mpagado = debt.mpendiente;
+                debt.bpago = true;
+                paidInstallments.push(debt);
             }
+            else {
+                debt.mpagado = totalPaymentAmount;
+                totalPaymentAmount -= debt.mpendiente;
+                debt.bpago = false;
+                paidInstallments.push(debt);
+            }
+        }
+        else {
+            break;
         }
     }
-    else {
-        let xconceptopago = 'Total de tratamiento'
-        const paidDebts = await Collection.payOneFeesClientDebts(userData, clientId, paymentData , npaquete , totalPaymentAmount , xconceptopago);
-        if (paidDebts.error) {
-            return {
-                error: paidDebts.error
-            }
-        }
 
+    for (let i = 0; i < paidInstallments.length; i++) {
+        paidInstallments[i].mtotalrecibo = totalPaymentAmount;
+        let totalContractDebt = 0;
+        debtCollections.forEach(debt => {
+            if (debt.npaquete === paidInstallments[i].npaquete) {
+                totalContractDebt += debt.mcuota;
+            }
+        })
+        if (totalContractDebt > totalPaymentAmount) {
+            paidInstallments[i].xconceptopago = 'Parcial de tratamiento'
+        }
+        else {
+            paidInstallments[i].xconceptopago = 'Total de tratamiento'
+        }
+    }     
+
+    const paidDebts = await Collection.payOneFeesClientDebts(userData, paidInstallments, paymentData , npaquete , totalPaymentAmount , xconceptopago);
+    if (paidDebts.error) {
+        return {
+            error: paidDebts.error
+        }
     }
     return paidDebts;
 }
