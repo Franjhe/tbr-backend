@@ -245,6 +245,7 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
             debt.mpendiente = totalPaymentAmount
         }
     }
+    console.log(totalPaymentAmount)
     const totalDebt = debtCollections.reduce((total, debt) => total + debt.mpendiente, 0)
 
     if (totalDebt < totalPaymentAmount) {
@@ -291,7 +292,7 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
         }
     }     
 
-    const paidDebts = await Collection.payOneFeesClientDebts(userData, paidInstallments, paymentData , npaquete , totalPaymentAmount , xconceptopago);
+    const paidDebts = await Collection.payOneFeesClientDebts(userData, paidInstallments, paymentData , totalPaymentAmount);
     if (paidDebts.error) {
         return {
             error: paidDebts.error

@@ -189,35 +189,35 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
     }
 }
 
-const payOneFeesClientDebts = async (userData, clientId, paymentData , npaquete , totalPaymentAmount , xconceptopago) => {
+const payOneFeesClientDebts = async (userData, paidInstallments, paymentData , totalPaymentAmount) => {
     try {
         let pool = await sql.connect(sqlConfig);
         let resultPaymentDistribution = [];
         //Inserta la distribucion de pago.
-        for (let i = 0; i < paymentDistribution.length; i++) {
+        for (let i = 0; i < paymentData.length; i++) {
             let result = await pool.request()
-                .input('cmodalidad_pago', sql.Int, paymentDistribution[i].cmodalidad_pago)
-                .input('ctipo_tarjeta', sql.Int, paymentDistribution[i].ctipo_tarjeta ? paymentDistribution[i].ctipo_tarjeta : undefined)
-                .input('cbanco', sql.Int, paymentDistribution[i].cbanco ? paymentDistribution[i].cbanco : undefined)
-                .input('cpos', sql.Int, paymentDistribution[i].cpos ? paymentDistribution[i].cpos : undefined)
-                .input('mpago', sql.Numeric(11,2), paymentDistribution[i].mpago)
-                .input('xtarjeta', sql.NVarChar, paymentDistribution[i].xtarjeta ? paymentDistribution[i].xtarjeta : undefined)
-                .input('xvencimiento', sql.NVarChar, paymentDistribution[i].xvencimiento ? paymentDistribution[i].xvencimiento : undefined)
-                .input('xobservacion', sql.NVarChar, paymentDistribution[i].xobservacion ? paymentDistribution[i].xobservacion : undefined)
-                .input('xreferencia', sql.NVarChar, paymentDistribution[i].xreferencia ? paymentDistribution[i].xreferencia : undefined)
+                .input('cmodalidad_pago', sql.Int, paymentData.distribucionPago[i].cmodalidad_pago)
+                .input('ctipo_tarjeta', sql.Int, paymentData.distribucionPago[i].ctipo_tarjeta ? paymentData[i].ctipo_tarjeta : undefined)
+                .input('cbanco', sql.Int, paymentData.distribucionPago[i].cbanco ? paymentData[i].cbanco : undefined)
+                .input('cpos', sql.Int, paymentData.distribucionPago[i].cpos ? paymentData.distribucionPago[i].cpos : undefined)
+                .input('mpago', sql.Numeric(11,2), paymentData.distribucionPago[i].mpago)
+                .input('xtarjeta', sql.NVarChar, paymentData.distribucionPago[i].xtarjeta ? paymentData.distribucionPago[i].xtarjeta : undefined)
+                .input('xvencimiento', sql.NVarChar, paymentData.distribucionPago[i].xvencimiento ? paymentData.distribucionPago[i].xvencimiento : undefined)
+                .input('xobservacion', sql.NVarChar, paymentData.distribucionPago[i].xobservacion ? paymentData.distribucionPago[i].xobservacion : undefined)
+                .input('xreferencia', sql.NVarChar, paymentData.distribucionPago[i].xreferencia ? paymentData.distribucionPago[i].xreferencia : undefined)
                 .query('insert into cbpagos (cmodalidad_pago, ctipo_tarjeta, cbanco, cpos, mpago, xtarjeta, xvencimiento, xobservacion,xreferencia) output inserted.cpago '
                                   + 'values (@cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion, @xreferencia)'
                 )
             resultPaymentDistribution.push(result.recordset[0]);
         }
         //Inserta un recibo por cada contrato.
-        for (let i = 0; i < paidPaymentInstallments.length; i++) {
+        for (let i = 0; i < paidInstallments.length; i++) {
             let result = await pool.request()
-                .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
-                .input('ncliente', sql.Int, clientId)
-                .input('mtotal', sql.Numeric(11,2), paidPaymentInstallments[i].mtotalrecibo)
-                .input('fcobro', sql.Date, paymentDate)
-                .input('xconceptopago', sql.NVarChar, paidPaymentInstallments[i].xconceptopago)
+                .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
+                .input('ncliente', sql.Int, paymentData.ncliente)
+                .input('mtotal', sql.Numeric(11,2), paidInstallments[i].mpagado)
+                .input('fcobro', sql.Date, paymentData.fpago)
+                .input('xconceptopago', sql.NVarChar, paidInstallments[i].xconceptopago)
                 .input('cvendedor', sql.Int, userData.cusuario)
                 .input('bactivo', sql.Bit, true)
                 .query('insert into cbrecibos (npaquete, ncliente, mtotal, fcobro, xconceptopago, cvendedor, bactivo) output inserted.crecibo '
@@ -231,20 +231,20 @@ const payOneFeesClientDebts = async (userData, clientId, paymentData , npaquete 
                     .query('insert into cbpagos_det (crecibo, cpago) values (@crecibo, @cpago)')
             }
             //Inserta cuanto se pago de cada cuota en el recibo.
-            for (let j = 0; j < paidPaymentInstallments[i].cuotas.length; j++) {
+            for (let j = 0; j < paidInstallments[i].length; j++) {
                 await pool.request()
                     .input('crecibo', sql.Int, result.recordset[0].crecibo)
-                    .input('ccuota', sql.Int, paidPaymentInstallments[i].cuotas[j].ccuota)
-                    .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
-                    .input('mmonto_cuota', sql.Numeric(11,2), paidPaymentInstallments[i].cuotas[j].mpagado)
+                    .input('ccuota', sql.Int, paidInstallments[i][j].ccuota)
+                    .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
+                    .input('mmonto_cuota', sql.Numeric(11,2), paidInstallments[i][j].mpagado)
                     .query('insert into cbrecibos_det (crecibo, ccuota, npaquete, mmonto_cuota) values (@crecibo, @ccuota, @npaquete, @mmonto_cuota)')
-                if (paidPaymentInstallments[i].cuotas[j].bpago) {
+                if (paidInstallments[i].cuotas[j].bpago) {
                     //Actualiza el estado de la cuota a pagado siempre y cuando la cuota no tenga deuda pendiente.
                     await pool.request()
-                        .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
-                        .input('ccuota', sql.Int, paidPaymentInstallments[i].cuotas[j].ccuota)
-                        .input('fcobro', sql.Date, paymentDate)
-                        .input('bpago', sql.Bit, paidPaymentInstallments[i].cuotas[j].bpago)
+                        .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
+                        .input('ccuota', sql.Int, paidInstallments[i][j].ccuota)
+                        .input('fcobro', sql.Date, paymentData.fpago)
+                        .input('bpago', sql.Bit, paidInstallments[i][j].bpago)
                         .query('update cbcuotas set fcobro = @fcobro, bpago = @bpago where npaquete = @npaquete and ccuota = @ccuota')
                 }
             }
