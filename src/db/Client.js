@@ -17,13 +17,13 @@ const getAllClients = async (clientData) => {
     try {
         let pool = await sql.connect(sqlConfig);
         let result = await pool.request()
-            .input('csucursal', sql.Int, clientData.csucursal)
+            .input('csucursal', sql.Int, clientData.csucursal ? clientData.csucursal : null)
             .input('xnombre', sql.NVarChar, clientData.xnombre ? clientData.xnombre : null)
             .input('cid', sql.NVarChar, clientData.cid ? clientData.cid : null)
             .input('bactivo', sql.Bit, true)
             .query(
                 `select ncliente, ncont_ant, xcliente, cid, csucursal `
-                + `from vwbuscarclientes where bactivo = @bactivo and csucursal = @csucursal ${clientData.xnombre ? `and xcliente like '%${clientData.xnombre}%'` : ''} ${clientData.cid ? `and cid = @cid` : '' } `
+                + `from vwbuscarclientes where bactivo = @bactivo  ${clientData.csucursal ? `and csucursal = @csucursal` : '' }  ${clientData.xnombre ? `and xcliente like '%${clientData.xnombre}%'` : ''} ${clientData.cid ? `and cid = @cid` : '' } `
             );
         return result.recordset;
     }

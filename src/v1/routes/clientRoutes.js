@@ -97,7 +97,7 @@ router
      *             schema:
      *               $ref: '#/components/responses/ErrorResponse' 
      */
-    .post("/search", searchClientDTO.validateSearchClientDTO, clientController.getAllClients)
+    .post("/search", clientController.getAllClients)
 
     /**
      * @swagger
