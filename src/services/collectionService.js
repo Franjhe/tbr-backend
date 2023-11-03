@@ -245,7 +245,6 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
             debt.mpendiente = totalPaymentAmount
         }
     }
-    console.log(totalPaymentAmount)
     const totalDebt = debtCollections.reduce((total, debt) => total + debt.mpendiente, 0)
 
     if (totalDebt < totalPaymentAmount) {
@@ -290,7 +289,7 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
         else {
             paidInstallments[i].xconceptopago = 'Total de tratamiento'
         }
-    }     
+    } 
 
     const paidDebts = await Collection.payOneFeesClientDebts(userData, paidInstallments, paymentData , totalPaymentAmount);
     if (paidDebts.error) {
@@ -299,15 +298,10 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
         }
     }
     return paidDebts;
+ 
 }
 
 const getAllDebtCollectionsPending = async (userData, searchData) => {
-    if (!userData.bmaster) {
-        return {
-            permissionError: 'El usuario solo puede visualizar la cobranza de los clientes de la sucursal a la que pertenece.'
-        }
-    }
-
     let debtCollections = [];
     let contractDebtCollection = await Collection.getAllContractDebtCollectionsPending(searchData);
     if (contractDebtCollection.error) {

@@ -194,7 +194,8 @@ const payOneFeesClientDebts = async (userData, paidInstallments, paymentData , t
         let pool = await sql.connect(sqlConfig);
         let resultPaymentDistribution = [];
         //Inserta la distribucion de pago.
-        for (let i = 0; i < paymentData.length; i++) {
+
+        for (let i = 0; i < paymentData.distribucionPago.length; i++) {
             let result = await pool.request()
                 .input('cmodalidad_pago', sql.Int, paymentData.distribucionPago[i].cmodalidad_pago)
                 .input('ctipo_tarjeta', sql.Int, paymentData.distribucionPago[i].ctipo_tarjeta ? paymentData[i].ctipo_tarjeta : undefined)
@@ -209,6 +210,7 @@ const payOneFeesClientDebts = async (userData, paidInstallments, paymentData , t
                                   + 'values (@cmodalidad_pago, @ctipo_tarjeta, @cbanco, @cpos, @mpago, @xtarjeta, @xvencimiento, @xobservacion, @xreferencia)'
                 )
             resultPaymentDistribution.push(result.recordset[0]);
+            
         }
         //Inserta un recibo por cada contrato.
         for (let i = 0; i < paidInstallments.length; i++) {
@@ -225,29 +227,29 @@ const payOneFeesClientDebts = async (userData, paidInstallments, paymentData , t
                 )
             //Inserta el recibo y la distribucion del pago en el detalle.
             for (let j = 0; j < resultPaymentDistribution.length; j++) {
+
                 await pool.request()
                     .input('crecibo', sql.Int, result.recordset[0].crecibo)
                     .input('cpago', sql.Int, resultPaymentDistribution[j].cpago)
                     .query('insert into cbpagos_det (crecibo, cpago) values (@crecibo, @cpago)')
             }
-            //Inserta cuanto se pago de cada cuota en el recibo.
-            for (let j = 0; j < paidInstallments[i].length; j++) {
+            //Inserta cuanto se pago de cada cuota en el recibo.      
                 await pool.request()
                     .input('crecibo', sql.Int, result.recordset[0].crecibo)
-                    .input('ccuota', sql.Int, paidInstallments[i][j].ccuota)
+                    .input('ccuota', sql.Int, paidInstallments[i].ccuota)
                     .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
-                    .input('mmonto_cuota', sql.Numeric(11,2), paidInstallments[i][j].mpagado)
+                    .input('mmonto_cuota', sql.Numeric(11,2), paidInstallments[i].mpagado)
                     .query('insert into cbrecibos_det (crecibo, ccuota, npaquete, mmonto_cuota) values (@crecibo, @ccuota, @npaquete, @mmonto_cuota)')
-                if (paidInstallments[i].cuotas[j].bpago) {
+                if (paidInstallments[i] .bpago) {
                     //Actualiza el estado de la cuota a pagado siempre y cuando la cuota no tenga deuda pendiente.
                     await pool.request()
                         .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
-                        .input('ccuota', sql.Int, paidInstallments[i][j].ccuota)
+                        .input('ccuota', sql.Int, paidInstallments[i].ccuota)
                         .input('fcobro', sql.Date, paymentData.fpago)
-                        .input('bpago', sql.Bit, paidInstallments[i][j].bpago)
+                        .input('bpago', sql.Bit, paidInstallments[i].bpago)
                         .query('update cbcuotas set fcobro = @fcobro, bpago = @bpago where npaquete = @npaquete and ccuota = @ccuota')
                 }
-            }
+            
         }
         return true;
     }
