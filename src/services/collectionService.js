@@ -221,7 +221,7 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
     }
 
     let debtCollections = [];
-    let contractDebtCollection = await Collection.getAllContractDebtCollections(paymentData.npaquete); //cobranza del contrato
+    let contractDebtCollection = await Collection.getAllContractandFeesDebtCollections(paymentData.npaquete,paymentData.ccuota); //cobranza del contrato
     if (contractDebtCollection.error) {
         return {
             error: contractDebtCollection.error
@@ -231,18 +231,19 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
         debtCollections.push(contractDebt);
     }
 
-
-    let totalPaymentAmount = paymentData.distribucionPago.reduce((totalAmount, paymentData) => totalAmount + paymentData.mpago, 0);  //suma de montos de la distribucion de pago de la cuotas
+    //suma de montos de la distribucion de pago de la cuotas
+    let totalPaymentAmount = paymentData.distribucionPago.reduce((totalAmount, paymentData) => totalAmount + paymentData.mpago, 0);
 
     for (let i = 0; i < debtCollections.length; i++) {
         //Se buscan los abonos de cada cuota.
         let debt = debtCollections[i];
         let paidDebt = await Collection.getInstallmentPayments(paymentData.npaquete, paymentData.ccuota);
+
         if (paidDebt) {
-            debt.mpendiente = paidDebt - totalPaymentAmount;
+            debt.mpendiente = debt.mcuota - paidDebt;
         }
         else {
-            debt.mpendiente = totalPaymentAmount
+            debt.mpendiente = debt.mcuota
         }
     }
     const totalDebt = debtCollections.reduce((total, debt) => total + debt.mpendiente, 0)
@@ -276,21 +277,24 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
     }
 
     for (let i = 0; i < paidInstallments.length; i++) {
-        paidInstallments[i].mtotalrecibo = totalPaymentAmount;
+        console.log(paidInstallments)
+        let totalReceipt = paidInstallments[i].mpagado
+        paidInstallments[i].mtotalrecibo = totalReceipt;
         let totalContractDebt = 0;
         debtCollections.forEach(debt => {
             if (debt.npaquete === paidInstallments[i].npaquete) {
                 totalContractDebt += debt.mcuota;
             }
         })
-        if (totalContractDebt > totalPaymentAmount) {
+        if (totalContractDebt > totalReceipt) {
             paidInstallments[i].xconceptopago = 'Parcial de tratamiento'
         }
         else {
             paidInstallments[i].xconceptopago = 'Total de tratamiento'
         }
-    } 
+    }
 
+    console.log(userData, paidInstallments, paymentData  )
     const paidDebts = await Collection.payOneFeesClientDebts(userData, paidInstallments, paymentData , totalPaymentAmount);
     if (paidDebts.error) {
         return {

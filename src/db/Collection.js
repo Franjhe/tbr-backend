@@ -54,6 +54,28 @@ const getAllContractDebtCollections = async (packageId) => {
     }
 }
 
+const getAllContractandFeesDebtCollections = async (packageId, Ccuota) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool.request()
+            .input('npaquete', sql.NVarChar, packageId)
+            .input('ccuota', sql.Numeric, Ccuota)
+            .input('bpago', sql.Bit, false)
+            .input('bactivo', sql.Bit, true)
+            .query(
+                'select npaquete, mpaquete_cont,ccuota, fcontrato, csucursal, xsucursal, ipago, mcuota, fpago '
+                + 'from vwbuscarcobranzapendientexcliente where bpago = @bpago and bactivo = @bactivo and ccuota = @ccuota and npaquete = @npaquete order by fpago'
+            );
+        return result.recordset;
+    }
+    catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
 const getAllContractDebtCollectionsPending = async (Pending) => {
     try {
         let pool = await sql.connect(sqlConfig);
@@ -189,17 +211,17 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
     }
 }
 
-const payOneFeesClientDebts = async (userData, paidInstallments, paymentData , totalPaymentAmount) => {
+const payOneFeesClientDebts = async (userData, paidInstallments, paymentData ) => {
     try {
         let pool = await sql.connect(sqlConfig);
         let resultPaymentDistribution = [];
         //Inserta la distribucion de pago.
-
+        console.log(paymentData.distribucionPago)
         for (let i = 0; i < paymentData.distribucionPago.length; i++) {
             let result = await pool.request()
                 .input('cmodalidad_pago', sql.Int, paymentData.distribucionPago[i].cmodalidad_pago)
-                .input('ctipo_tarjeta', sql.Int, paymentData.distribucionPago[i].ctipo_tarjeta ? paymentData[i].ctipo_tarjeta : undefined)
-                .input('cbanco', sql.Int, paymentData.distribucionPago[i].cbanco ? paymentData[i].cbanco : undefined)
+                .input('ctipo_tarjeta', sql.Int, paymentData.distribucionPago[i].ctipo_tarjeta ? paymentData.distribucionPago[i].ctipo_tarjeta : undefined)
+                .input('cbanco', sql.Int, paymentData.distribucionPago[i].cbanco ? paymentData.distribucionPago[i].cbanco : undefined)
                 .input('cpos', sql.Int, paymentData.distribucionPago[i].cpos ? paymentData.distribucionPago[i].cpos : undefined)
                 .input('mpago', sql.Numeric(11,2), paymentData.distribucionPago[i].mpago)
                 .input('xtarjeta', sql.NVarChar, paymentData.distribucionPago[i].xtarjeta ? paymentData.distribucionPago[i].xtarjeta : undefined)
@@ -217,7 +239,7 @@ const payOneFeesClientDebts = async (userData, paidInstallments, paymentData , t
             let result = await pool.request()
                 .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
                 .input('ncliente', sql.Int, paymentData.ncliente)
-                .input('mtotal', sql.Numeric(11,2), paidInstallments[i].mpagado)
+                .input('mtotal', sql.Numeric(11,2), paidInstallments[i].mtotalrecibo)
                 .input('fcobro', sql.Date, paymentData.fpago)
                 .input('xconceptopago', sql.NVarChar, paidInstallments[i].xconceptopago)
                 .input('cvendedor', sql.Int, userData.cusuario)
@@ -284,6 +306,7 @@ const verifyIfContractHasExpiredDebt = async (packageId) => {
 export default {
     getAllClientDebtCollections,
     getAllContractDebtCollections,
+    getAllContractandFeesDebtCollections,
     getAllContractDebtCollectionsPending,
     getAllClientPaidBillings,
     getInstallmentPayments,
