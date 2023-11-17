@@ -28,11 +28,11 @@ const getOneClient = async (userData, clientId) => {
             errorNotFound: 'No existe un cliente con el Id suministrado'
         }
     }
-    if (!userData.bmaster && parseInt(userData.csucursal) !== parseInt(client.csucursal)) {
-        return {
-            permissionError: 'El usuario solo puede visualizar los clientes de la sucursal a la que pertenece.'
-        }
-    }
+    // if (!userData.bmaster && parseInt(userData.csucursal) !== parseInt(client.csucursal)) {
+    //     return {
+    //         permissionError: 'El usuario solo puede visualizar los clientes de la sucursal a la que pertenece.'
+    //     }
+    // }
     return client;
 }
 
