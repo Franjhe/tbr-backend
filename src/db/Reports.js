@@ -43,7 +43,7 @@ const reportsSales = async (reportsSales) => {
             .input('fhasta', sql.Date, reportsSales.fhasta)
             .input('igarantizada', sql.Char, 'S')
             .input('bactivo', sql.Bit, true)
-            .query('select * from vwbuscarcontratosxvendedores where bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta and igarantizada = @igarantizada');
+            .query('select * from vwbuscarcontratosxvendedores where bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta ');
         return result.recordset;
     }
     catch (error) {
