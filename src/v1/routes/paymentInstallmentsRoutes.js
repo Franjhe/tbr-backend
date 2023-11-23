@@ -158,5 +158,7 @@ router
      *               $ref: '#/components/responses/ErrorResponse' 
      */
     .post('/', authorizate(2, true, false, false), newPaymentInstallmentsDTO.validateNewPaymentInstallmentsDTO, verifyIfContractExists, verifyPaymentMethods, /*verifyPaymentInstallmentsDates,*/ verifyPaymentInstallmentsAmounts, paymentInstallmentsController.createNewPaymentInstallments)
+    
+    .patch('/', authorizate(2, true, true, false),  verifyIfContractExists, verifyPaymentInstallmentsAmounts, paymentInstallmentsController.editPaymentInstallments)
 
 export default router;

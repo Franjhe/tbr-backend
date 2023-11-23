@@ -59,7 +59,18 @@ const getContractPaymentInstallments = async (userData, packageId) => {
     return contractPaymentInstallments;
 }
 
+const editNewPaymentInstallments = async (userData, paymentInstallmentsData) => {
+    const editPaymentInstallments = await PaymentInstallments.updatePaymentInstallments(paymentInstallmentsData);
+    if (editPaymentInstallments.error) {
+        return {
+            error: editPaymentInstallments.error
+        }
+    }
+    return editPaymentInstallments;
+}
+
 export default {
     createNewPaymentInstallments,
-    getContractPaymentInstallments
+    getContractPaymentInstallments,
+    editNewPaymentInstallments
 }

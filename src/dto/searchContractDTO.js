@@ -5,10 +5,12 @@ import addErrors from 'ajv-errors';
 
 const SearchContractDTOSchema = Type.Object(
     {
-        csucursal: Type.Integer({
-            minimum: 1,
-            maximum: 2147483647
-        }),
+        csucursal: Type.Optional(
+            Type.Integer({
+                minimum: 1,
+                maximum: 2147483647
+            })
+        ),
         ncliente: Type.Optional(
             Type.Integer({
                 minimum: 1,

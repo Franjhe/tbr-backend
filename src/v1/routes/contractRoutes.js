@@ -120,7 +120,7 @@ router
      *             schema:
      *               $ref: '#/components/responses/ErrorResponse' 
      */
-    .post('/search', searchContractDTO.validateSearchContractDTO, verifyIfBranchExists, verifyIfClientExists, contractController.getAllContracts)
+    .post('/search', verifyIfClientExists, contractController.getAllContracts)
     
     /**
      * @swagger
