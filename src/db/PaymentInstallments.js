@@ -131,7 +131,6 @@ const updatePaymentInstallments = async ( paymentInstallmentsData) => {
 
                     await insertFees
                     for (let i = 0; i < paymentInstallmentsData.cuotas.length ; i++) {
-                        console.log(paymentInstallmentsData.cuotas)
                         let result = await pool.request()
                         .input('npaquete', sql.NVarChar, paymentInstallmentsData.npaquete)
                         .input('ccuota', sql.Int, paymentInstallmentsData.cuotas[i].ccuota)
@@ -153,7 +152,8 @@ const updatePaymentInstallments = async ( paymentInstallmentsData) => {
                 error: error.message
             }
         }
-    }else{
+    }
+    else if(!paymentInstallmentsData.addFees){
         try {
             let pool = await sql.connect(sqlConfig)
             for (let i = 0; i < paymentInstallmentsData.cuotas.length ; i++) {
@@ -165,6 +165,7 @@ const updatePaymentInstallments = async ( paymentInstallmentsData) => {
                 .query(
                     'update cbcuotas set fpago = @fpago , mcuota = @mcuota  where npaquete = @npaquete and ccuota = @ccuota'
                 );
+                await pool.request()
                 return {
                     result
                 }
