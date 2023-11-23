@@ -45,7 +45,35 @@ const getContractPaymentInstallments = async (req, res) => {
         });
 }
 
+const editPaymentInstallments = async (req, res) => {
+    const editPaymentInstallments = await paymentInstallmentsService.editNewPaymentInstallments(res.locals.decodedJWT, req.body);
+    if (editPaymentInstallments.errorInAdvance) {
+        return res
+            .status(400)
+            .send({
+                status: false,
+                message: editPaymentInstallments.errorInAdvance
+            });
+    }
+    if (editPaymentInstallments.error) {
+        return res
+            .status(500)
+            .send({
+                status: false,
+                message: createdPaymentInstallments.error
+            });
+    }
+    return res
+        .status(201)
+        .send({
+            status: true,
+            message: `Se han cargado las cuotas del paquete ${editPaymentInstallments.npaquete} exitosamente`,
+            crecibo: editPaymentInstallments.crecibo
+        });
+}
+
 export default {
     createNewPaymentInstallments,
-    getContractPaymentInstallments
+    getContractPaymentInstallments,
+    editPaymentInstallments
 }
