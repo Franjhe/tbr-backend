@@ -98,12 +98,12 @@ const getAllContracts = async (searchData) => {
     try {
         let pool = await sql.connect(sqlConfig);
         let result = await pool.request()
-            .input('csucursal', sql.Int, searchData.csucursal)
+            .input('csucursal', sql.Int, searchData.csucursal ? searchData.csucursal : null)
             .input('ncliente', sql.Int, searchData.ncliente ? searchData.ncliente : null)
             .input('bactivo', sql.Bit, true)
             .query(
                 `select npaquete, ncliente, xcliente, xsucursal, fcontrato, xvendedor, ipaquete_tipo, mpaquete_cont, bactivo, bcuotas, bprimerasesion `
-                + `from vwbuscarcontratos where csucursal = @csucursal and bactivo = @bactivo ${searchData.ncliente ? `and ncliente = '${searchData.ncliente}'` : ''} order by fcontrato desc`
+                + `from vwbuscarcontratos where bactivo = @bactivo ${searchData.ncliente ? `and ncliente = '${searchData.ncliente}'` : ''}  ${searchData.csucursal ? `and csucursal = '${searchData.csucursal}'` : ''} order by fcontrato desc`
             );
         return result.recordset;
     }

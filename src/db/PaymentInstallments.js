@@ -102,7 +102,86 @@ const getContractPaymentInstallments = async (packageId) => {
     }
 }
 
+const updatePaymentInstallments = async ( paymentInstallmentsData) => {
+
+    if(paymentInstallmentsData.addFees){
+        try {
+
+            let pool = await sql.connect(sqlConfig);
+            let numFees = await pool.request()
+            .input('npaquete', sql.NVarChar, paymentInstallmentsData.npaquete)
+            .query('SELECT MAX(ccuota) AS cuota from cbcuotas where npaquete = @npaquete'
+            )
+            const maxFees = numFees.recordset[0].cuota - 1
+            for (let i = maxFees; i < paymentInstallmentsData.cuotas.length ; i++) {
+                    let pool = await sql.connect(sqlConfig);
+                    let insertFees = await pool.request()
+                    .input('npaquete', sql.NVarChar, paymentInstallmentsData.npaquete)
+                    .input('ccuota', sql.Int, i + 2)
+                    .input('fpago', sql.DateTime, paymentInstallmentsData.cuotas[i].fpago)
+                    .input('ipago', sql.NVarChar, 'F')
+                    .input('bpago', sql.Bit, false)
+                    .input('bactivo', sql.Bit, true)
+                    .input('mcuota', sql.Numeric(11,2), paymentInstallmentsData.cuotas[i].mcuota)
+                    .input('mpagado', sql.Numeric(11,2), 0)
+                    .query(
+                        'insert into cbcuotas (npaquete, ccuota, fpago, ipago, bpago, bactivo, mcuota, mpagado) ' 
+                                    + 'values (@npaquete, @ccuota, @fpago, @ipago, @bpago, @bactivo, @mcuota, @mpagado)'
+                    );
+
+                    await insertFees
+                    for (let i = 0; i < paymentInstallmentsData.cuotas.length ; i++) {
+                        console.log(paymentInstallmentsData.cuotas)
+                        let result = await pool.request()
+                        .input('npaquete', sql.NVarChar, paymentInstallmentsData.npaquete)
+                        .input('ccuota', sql.Int, paymentInstallmentsData.cuotas[i].ccuota)
+                        .input('fpago', sql.DateTime, paymentInstallmentsData.cuotas[i].fpago )
+                        .input('mcuota', sql.Numeric(17,2), paymentInstallmentsData.cuotas[i].mcuota)
+                        .query(
+                            'update cbcuotas set fpago = @fpago , mcuota = @mcuota where npaquete = @npaquete and ccuota = @ccuota'
+                        );
+          
+                        return {
+                            result
+                        }
+                    }
+            }
+    
+        }
+        catch (error) {
+            return {
+                error: error.message
+            }
+        }
+    }else{
+        try {
+            let pool = await sql.connect(sqlConfig)
+            for (let i = 0; i < paymentInstallmentsData.cuotas.length ; i++) {
+                let result = await pool.request()
+                .input('npaquete', sql.NVarChar, paymentInstallmentsData.npaquete)
+                .input('ccuota', sql.Int, paymentInstallmentsData.cuotas[i].ccuota)
+                .input('fpago', sql.DateTime, paymentInstallmentsData.cuotas[i].fpago )
+                .input('mcuota', sql.Numeric(17,2), paymentInstallmentsData.cuotas[i].mcuota)
+                .query(
+                    'update cbcuotas set fpago = @fpago , mcuota = @mcuota  where npaquete = @npaquete and ccuota = @ccuota'
+                );
+                return {
+                    result
+                }
+            }
+    
+        }
+        catch (error) {
+            return {
+                error: error.message
+            }
+        }
+    }
+
+}
+
 export default {
     createNewPaymentInstallments,
-    getContractPaymentInstallments
+    getContractPaymentInstallments,
+    updatePaymentInstallments
 }
