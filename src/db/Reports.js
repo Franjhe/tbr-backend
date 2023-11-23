@@ -18,7 +18,7 @@ const reportsCollection = async (reportsCollection) => {
             .input('csucursal', sql.Int, reportsCollection.csucursal)
             .input('fdesde', sql.Date, reportsCollection.fdesde)
             .input('fhasta', sql.Date, reportsCollection.fhasta)
-            .input('bpago', sql.Bit, false)
+            .input('bpago', sql.Bit, true)
             .input('bactivo', sql.Bit, true)
             .query(
                 'select npaquete, mpaquete_cont, fcontrato, xsucursal, ccuota, ipago, mcuota, fpago , ncliente '
