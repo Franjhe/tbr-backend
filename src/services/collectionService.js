@@ -277,7 +277,6 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
     }
 
     for (let i = 0; i < paidInstallments.length; i++) {
-        console.log(paidInstallments)
         let totalReceipt = paidInstallments[i].mpagado
         paidInstallments[i].mtotalrecibo = totalReceipt;
         let totalContractDebt = 0;
@@ -294,7 +293,6 @@ const payOneFeesClientDebts = async (userData, paymentData) => {
         }
     }
 
-    console.log(userData, paidInstallments, paymentData  )
     const paidDebts = await Collection.payOneFeesClientDebts(userData, paidInstallments, paymentData , totalPaymentAmount);
     if (paidDebts.error) {
         return {
