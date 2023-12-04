@@ -83,7 +83,7 @@ const getAllContractDebtCollectionsPending = async (Pending) => {
             .input('csucursal', sql.Int, Pending.csucursal)
             .input('fdesde', sql.Date, Pending.fdesde)
             .input('fhasta', sql.Date, Pending.fhasta)
-            .input('bpago', sql.Bit, false)
+            .input('bpago', sql.Bit, true)
             .input('bactivo', sql.Bit, true)
             .query(
                 'select npaquete, mpaquete_cont, fcontrato, xsucursal, ccuota, ipago, mcuota, fpago , ncliente '
@@ -190,7 +190,25 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
                     .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
                     .input('mmonto_cuota', sql.Numeric(11,2), paidPaymentInstallments[i].cuotas[j].mpagado)
                     .query('insert into cbrecibos_det (crecibo, ccuota, npaquete, mmonto_cuota) values (@crecibo, @ccuota, @npaquete, @mmonto_cuota)')
-                if (paidPaymentInstallments[i].cuotas[j].bpago) {
+                
+                    let searchMount = await pool.request()
+                    .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
+                    .input('ccuota', sql.Int, paidPaymentInstallments[i].cuotas[j].ccuota)
+                    .query(
+                        'select mmonto_cuota from cbrecibos_det where npaquete = @npaquete and ccuota = @ccuota'
+                    );
+         
+                    const mountDet =  searchMount.recordset.reduce((paidAmount, installmentPayment) => paidAmount + installmentPayment.mmonto_cuota, 0)
+                 
+                    await pool.request()
+                    .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
+                    .input('ccuota', sql.Int, paidPaymentInstallments[i].cuotas[j].ccuota)
+                    .input('fcobro', sql.Date, paymentDate)
+                    .input('mpagado', sql.Numeric(11,2), mountDet)
+                    .query('update cbcuotas set fcobro = @fcobro , mpagado = @mpagado where npaquete = @npaquete and ccuota = @ccuota ')   
+                
+                
+                    if (paidPaymentInstallments[i].cuotas[j].bpago) {
                     //Actualiza el estado de la cuota a pagado siempre y cuando la cuota no tenga deuda pendiente.
                     await pool.request()
                         .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
@@ -216,7 +234,6 @@ const payOneFeesClientDebts = async (userData, paidInstallments, paymentData ) =
         let pool = await sql.connect(sqlConfig);
         let resultPaymentDistribution = [];
         //Inserta la distribucion de pago.
-        console.log(paymentData.distribucionPago)
         for (let i = 0; i < paymentData.distribucionPago.length; i++) {
             let result = await pool.request()
                 .input('cmodalidad_pago', sql.Int, paymentData.distribucionPago[i].cmodalidad_pago)
@@ -257,22 +274,34 @@ const payOneFeesClientDebts = async (userData, paidInstallments, paymentData ) =
             }
             //Inserta cuanto se pago de cada cuota en el recibo.      
                 await pool.request()
-                    .input('crecibo', sql.Int, result.recordset[0].crecibo)
-                    .input('ccuota', sql.Int, paidInstallments[i].ccuota)
-                    .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
-                    .input('mmonto_cuota', sql.Numeric(11,2), paidInstallments[i].mpagado)
-                    .query('insert into cbrecibos_det (crecibo, ccuota, npaquete, mmonto_cuota) values (@crecibo, @ccuota, @npaquete, @mmonto_cuota)')
-                if (paidInstallments[i] .bpago) {
-                    //Actualiza el estado de la cuota a pagado siempre y cuando la cuota no tenga deuda pendiente.
-                    await pool.request()
-                        .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
-                        .input('ccuota', sql.Int, paidInstallments[i].ccuota)
-                        .input('fcobro', sql.Date, paymentData.fpago)
-                        .input('bpago', sql.Bit, paidInstallments[i].bpago)
-                        .query('update cbcuotas set fcobro = @fcobro, bpago = @bpago where npaquete = @npaquete and ccuota = @ccuota')
-                }
+                .input('crecibo', sql.Int, result.recordset[0].crecibo)
+                .input('ccuota', sql.Int, paidInstallments[i].ccuota)
+                .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
+                .input('mmonto_cuota', sql.Numeric(11,2), paidInstallments[i].mpagado)
+                .query('insert into cbrecibos_det (crecibo, ccuota, npaquete, mmonto_cuota) values (@crecibo, @ccuota, @npaquete, @mmonto_cuota)')
+
+                let searchMount = await pool.request()
+                .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
+                .input('ccuota', sql.Int, paidInstallments[i].ccuota)
+                .query(
+                    'select mmonto_cuota from cbrecibos_det where npaquete = @npaquete and ccuota = @ccuota'
+                );
+     
+                const mountDet =  searchMount.recordset.reduce((paidAmount, installmentPayment) => paidAmount + installmentPayment.mmonto_cuota, 0)
+             
+                await pool.request()
+                .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
+                .input('ccuota', sql.Int, paidInstallments[i].ccuota)
+                .input('fcobro', sql.Date, paymentData.fpago)
+                .input('bpago', sql.Bit, paidInstallments[i].bpago)
+                .input('mpagado', sql.Numeric(11,2), mountDet)
+                .query('update cbcuotas set fcobro = @fcobro, bpago = @bpago  , mpagado = @mpagado where npaquete = @npaquete and ccuota = @ccuota ')   
             
+
         }
+
+
+
         return true;
     }
     catch (error) {
