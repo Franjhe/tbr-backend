@@ -30,8 +30,19 @@ const reportsCancelledAppointments = async (reportsCancelledAppointments) => {
     return cancelled;
 }
 
+const reportsSearchReceipt = async (reportsSearchReceipt) => {
+    const receipt = await Reports.reportsSearchReceipt(reportsSearchReceipt);
+    if (receipt.error) {
+        return {
+            error: receipt.error
+        }
+    }
+    return receipt;
+}
+
 export default {
     reportsCollection,
     reportsSales,
-    reportsCancelledAppointments
+    reportsCancelledAppointments,
+    reportsSearchReceipt
 }

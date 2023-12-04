@@ -72,8 +72,25 @@ const reportsCancelledAppointments = async (reportsCancelledAppointments) => {
     }
 }
 
+const reportsSearchReceipt = async (reportsSearchReceipt) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool.request()
+            .input('ncliente', sql.Int, reportsSearchReceipt.ncliente)
+            .query('select * from vwbuscarrecibosxpagos where ncliente = @ncliente');
+        return result.recordset;
+    }
+    catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
 export default {
     reportsCollection,
     reportsSales,
-    reportsCancelledAppointments
+    reportsCancelledAppointments,
+    reportsSearchReceipt
 }

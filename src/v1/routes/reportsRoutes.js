@@ -8,5 +8,6 @@ router
     .post("/collection", reportsController.reportsCollection)
     .post("/sales", reportsController.reportsSales)
     .post("/cancelled-appointments", reportsController.reportsCancelledAppointments)
+    .post("/search-receipt", reportsController.reportsSearchReceipt)
 
 export default router;
