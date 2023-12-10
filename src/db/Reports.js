@@ -20,12 +20,45 @@ const reportsCollection = async (reportsCollection) => {
             .input('fhasta', sql.Date, reportsCollection.fhasta)
             .input('bactivo', sql.Bit, true)
             .query(
-                'select npaquete, mpaquete_cont, fcontrato, xsucursal, ccuota, ipago, mcuota, fpago , ncliente, mpagado '
-                + 'from vwbuscarcobranzapendientexcliente where bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta ORDER BY npaquete'
-            );
+                'WITH RankedResults AS (' +
+                '  SELECT ' +
+                '    npaquete, ' +
+                '    mpaquete_cont, ' +
+                '    fcontrato, ' +
+                '    xsucursal, ' +
+                '    ccuota, ' +
+                '    ipago, ' +
+                '    mcuota, ' +
+                '    fpago, ' +
+                '    ncliente, ' +
+                '    mpagado, ' +
+                '    xmodalidad_pago, ' +
+                '    xtipo_tarjeta, ' +
+                '    ROW_NUMBER() OVER (PARTITION BY ccuota ORDER BY (SELECT NULL)) AS RowNum ' +
+                '  FROM vwbuscarcobranzapendientexcliente ' +
+                '  WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcontrato >= @fdesde AND fcontrato <= @fhasta ' +
+                ') ' +
+                'SELECT ' +
+                '  npaquete, ' +
+                '  mpaquete_cont, ' +
+                '  fcontrato, ' +
+                '  xsucursal, ' +
+                '  ccuota, ' +
+                '  ipago, ' +
+                '  mcuota, ' +
+                '  fpago, ' +
+                '  ncliente, ' +
+                '  mpagado ' +
+                '  xmodalidad_pago, ' +
+                '  xtipo_tarjeta ' +
+                'FROM ' +
+                '  RankedResults ' +
+                'WHERE ' +
+                '  RowNum = 1 ' +
+                'ORDER BY npaquete'
+              );
         return result.recordset;
-    }
-    catch (error) {
+    } catch (error) {
         console.log(error.message);
         return {
             error: error.message
