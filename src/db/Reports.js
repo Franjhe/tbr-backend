@@ -32,31 +32,28 @@ const reportsCollection = async (reportsCollection) => {
                 '    xmodalidad_pago, ' +
                 '    xtipo_tarjeta, ' +
                 '    ncliente, ' +
-                '    xmodalidad_pago, ' +
-                '    xtipo_tarjeta, ' +
                 '    ROW_NUMBER() OVER (PARTITION BY ccuota, npaquete ORDER BY (SELECT NULL)) AS RowNum ' +
                 '  FROM vwbuscarcobranzapendientexcliente ' +
                 '  WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcontrato >= @fdesde AND fcontrato <= @fhasta ' +
                 ') ' +
                 'SELECT ' +
-                '    npaquete, ' +
-                '    fcontrato, ' +
-                '    fpago, ' +
-                '    mcuota, ' +
-                '    mpagado, ' +
-                '    mpaquete_cont, ' +
-                '    xsucursal, ' +
-                '    xmodalidad_pago, ' +
-                '    xtipo_tarjeta, ' +
-                '    ncliente, ' +
-                '    xmodalidad_pago, ' +
-                '    xtipo_tarjeta ' +
+                '  npaquete, ' +
+                '  fcontrato, ' +
+                '  fpago, ' +
+                '  mcuota, ' +
+                '  mpagado, ' +
+                '  mpaquete_cont, ' +
+                '  xsucursal, ' +
+                '  xmodalidad_pago, ' +
+                '  xtipo_tarjeta, ' +
+                '  ncliente ' +
                 'FROM ' +
                 '  RankedResults ' +
                 'WHERE ' +
                 '  RowNum = 1 ' +
                 'ORDER BY npaquete'
               );
+              
         return result.recordset;
     } catch (error) {
         console.log(error.message);
