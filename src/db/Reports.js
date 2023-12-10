@@ -23,15 +23,15 @@ const reportsCollection = async (reportsCollection) => {
                 'WITH RankedResults AS (' +
                 '  SELECT ' +
                 '    npaquete, ' +
-                '    mpaquete_cont, ' +
                 '    fcontrato, ' +
-                '    xsucursal, ' +
-                '    ccuota, ' +
-                '    ipago, ' +
-                '    mcuota, ' +
                 '    fpago, ' +
-                '    ncliente, ' +
+                '    mcuota, ' +
                 '    mpagado, ' +
+                '    mpaquete_cont, ' +
+                '    xsucursal, ' +
+                '    xmodalidad_pago, ' +
+                '    xtipo_tarjeta, ' +
+                '    ncliente, ' +
                 '    xmodalidad_pago, ' +
                 '    xtipo_tarjeta, ' +
                 '    ROW_NUMBER() OVER (PARTITION BY ccuota, npaquete ORDER BY (SELECT NULL)) AS RowNum ' +
@@ -39,18 +39,18 @@ const reportsCollection = async (reportsCollection) => {
                 '  WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcontrato >= @fdesde AND fcontrato <= @fhasta ' +
                 ') ' +
                 'SELECT ' +
-                '  npaquete, ' +
-                '  mpaquete_cont, ' +
-                '  fcontrato, ' +
-                '  xsucursal, ' +
-                '  ccuota, ' +
-                '  ipago, ' +
-                '  mcuota, ' +
-                '  fpago, ' +
-                '  ncliente, ' +
-                '  mpagado ' +
-                '  xmodalidad_pago, ' +
-                '  xtipo_tarjeta ' +
+                '    npaquete, ' +
+                '    fcontrato, ' +
+                '    fpago, ' +
+                '    mcuota, ' +
+                '    mpagado, ' +
+                '    mpaquete_cont, ' +
+                '    xsucursal, ' +
+                '    xmodalidad_pago, ' +
+                '    xtipo_tarjeta, ' +
+                '    ncliente, ' +
+                '    xmodalidad_pago, ' +
+                '    xtipo_tarjeta, ' +
                 'FROM ' +
                 '  RankedResults ' +
                 'WHERE ' +
