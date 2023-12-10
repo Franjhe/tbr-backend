@@ -18,11 +18,10 @@ const reportsCollection = async (reportsCollection) => {
             .input('csucursal', sql.Int, reportsCollection.csucursal)
             .input('fdesde', sql.Date, reportsCollection.fdesde)
             .input('fhasta', sql.Date, reportsCollection.fhasta)
-            .input('bpago', sql.Bit, true)
             .input('bactivo', sql.Bit, true)
             .query(
-                'select npaquete, mpaquete_cont, fcontrato, xsucursal, ccuota, ipago, mcuota, fpago , ncliente '
-                + 'from vwbuscarcobranzapendientexcliente where bpago = @bpago and bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta'
+                'select npaquete, mpaquete_cont, fcontrato, xsucursal, ccuota, ipago, mcuota, fpago , ncliente, mpagado '
+                + 'from vwbuscarcobranzapendientexcliente where bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta'
             );
         return result.recordset;
     }
