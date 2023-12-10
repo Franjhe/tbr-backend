@@ -34,7 +34,7 @@ const reportsCollection = async (reportsCollection) => {
                 '    mpagado, ' +
                 '    xmodalidad_pago, ' +
                 '    xtipo_tarjeta, ' +
-                '    ROW_NUMBER() OVER (PARTITION BY ccuota ORDER BY (SELECT NULL)) AS RowNum ' +
+                '    ROW_NUMBER() OVER (PARTITION BY ccuota, npaquete ORDER BY (SELECT NULL)) AS RowNum ' +
                 '  FROM vwbuscarcobranzapendientexcliente ' +
                 '  WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcontrato >= @fdesde AND fcontrato <= @fhasta ' +
                 ') ' +
