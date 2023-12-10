@@ -50,7 +50,7 @@ const reportsCollection = async (reportsCollection) => {
                 '    xtipo_tarjeta, ' +
                 '    ncliente, ' +
                 '    xmodalidad_pago, ' +
-                '    xtipo_tarjeta, ' +
+                '    xtipo_tarjeta ' +
                 'FROM ' +
                 '  RankedResults ' +
                 'WHERE ' +
