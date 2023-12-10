@@ -21,7 +21,7 @@ const reportsCollection = async (reportsCollection) => {
             .input('bactivo', sql.Bit, true)
             .query(
                 'select npaquete, mpaquete_cont, fcontrato, xsucursal, ccuota, ipago, mcuota, fpago , ncliente, mpagado '
-                + 'from vwbuscarcobranzapendientexcliente where bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta'
+                + 'from vwbuscarcobranzapendientexcliente where bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta ORDER BY npaquete'
             );
         return result.recordset;
     }
