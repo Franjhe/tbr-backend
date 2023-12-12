@@ -14,10 +14,11 @@ const sqlConfig = {
 const reportsCollection = async (reportsCollection) => {
     try {
         let pool = await sql.connect(sqlConfig);
-        for(let i = 0; i < reportsCollection.csucursal.length; i++){
-            console.log(reportsCollection.csucursal[i].csucursal)
+        let results = [];
+        for (let i = 0; i < reportsCollection.csucursal.length; i++) {
+            const sucursal= reportsCollection.csucursal[i]
             let result = await pool.request()
-            .input('csucursal', sql.Int, reportsCollection.csucursal[i].csucursal)
+            .input('csucursal', sql.Int, sucursal)
             .input('fdesde', sql.Date, reportsCollection.fdesde)
             .input('fhasta', sql.Date, reportsCollection.fhasta)
             .input('bactivo', sql.Bit, true)
@@ -57,8 +58,9 @@ const reportsCollection = async (reportsCollection) => {
                 '  RowNum = 1 ' +
                 'ORDER BY npaquete'
             );
-            return result.recordset;
-        }  
+            results.push(result.recordset);
+          }
+          return results;
     } catch (error) {
         console.log(error.message);
         return {

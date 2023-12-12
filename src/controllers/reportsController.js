@@ -30,12 +30,14 @@ const reportsCollection = async (req, res) => {
                 message: collection.error
             });
     }
+    const unifiedCollection = [].concat(...collection);
+
     return res
         .status(200)
         .send({
             status: true,
             data: {
-                collection: collection
+                collection: unifiedCollection
             }
         });
 }
