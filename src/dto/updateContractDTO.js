@@ -107,7 +107,7 @@ const UpdateContractBodyDTOSchema = Type.Object(
         ),
     },
     {
-        additionalProperties: false
+        additionalProperties: true
     }
 )
 

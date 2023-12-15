@@ -59,6 +59,17 @@ const createNewContract = async (userData, contractData) => {
                                          + 'values (@ncontrato, @npaquete, @ncliente, @cgrupo, @ctratamiento, @ncliente_cont, @csucursal, @ipaquete_tipo, @mprecio_min, @nsesiones, @bfinalizado, @bactivo)'
                     )
             }
+
+            for (let i = 0; i < contractData.documentos.length; i++) {
+                let subresult = await pool.request()
+                    .input('npaquete', sql.NVarChar, contractData.npaquete)
+                    .input('xruta', sql.Bit, contractData.documentos[i].ruta)
+                    .input('fingreso', sql.DateTime, new Date())
+                    .query(
+                        'insert into pcdocumentos (npaquete, xruta, fingreso) values (@npaquete, @xruta, @fingreso)'
+                    )
+            }
+
         }
         //let treatments = [];
         //contractData.tratamientos.forEach(treatment => treatments.push(treatment.cgrupo + ' - ' + treatment.ctratamiento));
@@ -206,6 +217,17 @@ const updateOneContract = async (userData, contractChanges, packageId) => {
                                          + 'values (@ncontrato, @npaquete, @ncliente, @cgrupo, @ctratamiento, @ncliente_cont, @ipaquete_tipo, @mprecio_min, @nsesiones, @bfinalizado, @bactivo)'
                     )
             }
+
+            for (let i = 0; i < contractData.documentos.length; i++) {
+                let subresult = await pool.request()
+                    .input('npaquete', sql.NVarChar, contractData.npaquete)
+                    .input('xruta', sql.Bit, contractData.documentos[i].ruta)
+                    .input('fingreso', sql.DateTime, new Date())
+                    .query(
+                        'insert into pcdocumentos (npaquete, xruta, fingreso) values (@npaquete, @xruta, @fingreso)'
+                    )
+            }
+            
         }
         return {
             npaquete: packageId

@@ -113,7 +113,7 @@ const NewContractDTOSchema = Type.Object(
         ),
     },
     {
-        additionalProperties: false
+        additionalProperties: true
     }
 )
 
