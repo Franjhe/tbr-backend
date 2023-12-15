@@ -33,11 +33,12 @@ const createNewContract = async (userData, contractData) => {
             .input('mbono_cupon', sql.Numeric(11,2), contractData.mbono_cupon ? contractData.mbono_cupon : undefined)
             .input('mpaquete_cont', sql.Numeric(11,2), contractData.mpaquete_cont)
             .input('bactivo', sql.Bit, true)
+            .input('igarantizada', sql.Bit, true)
             .input('bcuotas', sql.Bit, false)
             .input('bprimerasesion', sql.Bit, false)
             .query(
-                'insert into pccontratos (npaquete, ipaquete_tipo, csucursal, ncliente, fcontrato, cvendedor, ctipocom, cterapeuta, crrss, mtotal, pdesc, mdesc, mpaquete, mbono_cupon, mpaquete_cont, bactivo, bcuotas, bprimerasesion) output inserted.ncontrato ' 
-                              + 'values (@npaquete, @ipaquete_tipo, @csucursal, @ncliente, @fcontrato, @cvendedor, @ctipocom, @cterapeuta, @crrss, @mtotal, @pdesc, @mdesc, @mpaquete, @mbono_cupon, @mpaquete_cont, @bactivo, @bcuotas, @bprimerasesion)'
+                'insert into pccontratos (npaquete, ipaquete_tipo, csucursal, ncliente, fcontrato, cvendedor, ctipocom, cterapeuta, crrss, mtotal, pdesc, mdesc, mpaquete, mbono_cupon, mpaquete_cont, bactivo, igarantizada,  bcuotas, bprimerasesion) output inserted.ncontrato ' 
+                              + 'values (@npaquete, @ipaquete_tipo, @csucursal, @ncliente, @fcontrato, @cvendedor, @ctipocom, @cterapeuta, @crrss, @mtotal, @pdesc, @mdesc, @mpaquete, @mbono_cupon, @mpaquete_cont, @bactivo, @igarantizada, @bcuotas, @bprimerasesion)'
             );
         if (parseInt(result.rowsAffected) > 0){
             for (let i = 0; i < contractData.clientes.length; i++) {
@@ -132,7 +133,7 @@ const getOneContract = async (packageId) => {
         let result = await pool.request()
             .input('npaquete', sql.NVarChar, packageId)
             .query(
-                'select npaquete, ncontrato, csucursal, fcontrato, ipaquete_tipo, ncliente, ctipocom, cvendedor, crrss, cterapeuta, mtotal, pdesc, mdesc, mpaquete, mbono_cupon, mpaquete_cont, bactivo, bcuotas, bprimerasesion '
+                'select npaquete, ncontrato, csucursal, fcontrato, igarantizada, ipaquete_tipo, ncliente, ctipocom, cvendedor, crrss, cterapeuta, mtotal, pdesc, mdesc, mpaquete, mbono_cupon, mpaquete_cont, bactivo, bcuotas, bprimerasesion '
                 + 'from vwbuscarcontratos where npaquete = @npaquete'
             );
         if (result.rowsAffected[0] === 0) {

@@ -63,7 +63,10 @@ const createNewPaymentInstallments = async (receiptId, paymentInstallmentsData) 
         await pool.request()
             .input('npaquete', sql.NVarChar, paymentInstallmentsData.npaquete)
             .input('bcuotas', sql.Bit, true)
-            .query('update pccontratos set bcuotas = @bcuotas where npaquete = @npaquete')
+            .input('ibono', sql.Bit, paymentInstallmentsData.bbono)
+            .input('iliquidado', sql.Bit, paymentInstallmentsData.bliquidado)
+            .input('igarantizada', sql.Bit, paymentInstallmentsData.bgarantizada)
+            .query('update pccontratos set bcuotas = @bcuotas, igarantizada = @igarantizada , ibono = @ibono , iliquidado = @iliquidado where npaquete = @npaquete')
         return {
             npaquete: paymentInstallmentsData.npaquete
         }

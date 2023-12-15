@@ -23,7 +23,7 @@ const NewPaymentInstallmentsDTOSchema = Type.Object(
                 maximum: 2147483647
             }
         ),
-        bgarantizada: Type.Boolean(),
+        // bgarantizada: Type.Boolean(),
         bbono: Type.Boolean(),
         bliquidado: Type.Boolean(),
         anticipo: Type.Array(
@@ -115,7 +115,7 @@ const NewPaymentInstallmentsDTOSchema = Type.Object(
         ),
     },
     {
-        additionalProperties: false
+        additionalProperties: true
     }
 )
 
