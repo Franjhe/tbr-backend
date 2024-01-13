@@ -72,20 +72,56 @@ const reportsCollection = async (reportsCollection) => {
 const reportsSales = async (reportsSales) => {
     try {
         let pool = await sql.connect(sqlConfig);
-        let result = await pool.request()
-            .input('csucursal', sql.Int, reportsSales.csucursal)
+        let results = [];
+        if(reportsSales.datos.csucursal.length && reportsSales.datos.vendedor.length){
+            for (let i = 0; i < reportsSales.datos.csucursal.length; i++) {
+                const sucursal = reportsSales.datos.csucursal[i];
+                for (let j = 0; j < reportsSales.datos.vendedor.length; j++) {
+                    const vendedor = reportsSales.datos.vendedor[j];
+                    let result = await pool.request()
+                        .input('csucursal', sql.Int, sucursal)
+                        .input('fdesde', sql.Date, reportsSales.fdesde)
+                        .input('fhasta', sql.Date, reportsSales.fhasta)
+                        .input('ipago', sql.Char, 'A')
+                        .input('bactivo', sql.Bit, true)
+                        .input('cvendedor', sql.Int, vendedor)
+                        .query(`
+                            SELECT fcontrato, npaquete, xnombre, csucursal, xsucursal, 
+                                mpaquete_cont, mcuota, (mpaquete_cont - mcuota) AS mpendiente, 
+                                cvendedor, xvendedor, bactivo
+                            FROM vwbuscarcobranzapendientexcliente
+                            WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
+                            AND (@cvendedor IS NULL OR cvendedor = @cvendedor)
+                            AND (@csucursal IS NULL OR csucursal = @csucursal)
+                        `);
+    
+                    results.push(result.recordset);
+                }
+            }
+        }else{
+            let result = await pool.request()
             .input('fdesde', sql.Date, reportsSales.fdesde)
             .input('fhasta', sql.Date, reportsSales.fhasta)
-            .input('igarantizada', sql.Char, 'S')
+            .input('ipago', sql.Char, 'A')
             .input('bactivo', sql.Bit, true)
-            .query('select * from vwbuscarcontratosxvendedores where bactivo = @bactivo and csucursal = @csucursal and fcontrato >= @fdesde AND fcontrato <= @fhasta ');
-        return result.recordset;
+            .query(`
+                SELECT fcontrato, npaquete, xnombre, csucursal, xsucursal, 
+                    mpaquete_cont, mcuota, (mpaquete_cont - mcuota) AS mpendiente, 
+                    cvendedor, xvendedor, bactivo
+                FROM vwbuscarcobranzapendientexcliente
+                WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
+            `);
+
+             results.push(result.recordset);
+        }
+
+        return results;
     }
     catch (error) {
         console.log(error.message);
         return {
             error: error.message
-        }
+        };
     }
 }
 

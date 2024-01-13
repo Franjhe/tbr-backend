@@ -56,10 +56,14 @@ const reportsSales = async (req, res) => {
             message: sales.error
         });
     }
-    const formattedList = sales.map((item) => ({
+
+    const unifiedSales = [].concat(...sales);
+
+    const formattedList = unifiedSales.map((item) => ({
         ...item,
         fcontrato: item.fcontrato ? formatDate(item.fcontrato) : null,
     }));
+
 
     return res.status(200).send({
         status: true,
