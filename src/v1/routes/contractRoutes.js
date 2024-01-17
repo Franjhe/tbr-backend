@@ -121,6 +121,8 @@ router
      *               $ref: '#/components/responses/ErrorResponse' 
      */
     .post('/search', verifyIfClientExists, contractController.getAllContracts)
+    .post('/do', verifyIfClientExists, contractController.getAllContracts) //carga de documentos en contrato
+
     
     /**
      * @swagger

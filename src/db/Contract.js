@@ -139,6 +139,15 @@ const getOneContract = async (packageId) => {
         if (result.rowsAffected[0] === 0) {
             return false;
         }
+
+            let document =  await pool.request()
+            .input('npaquete', sql.NVarChar, packageId)
+            .query(
+                'select xruta from pcdocumentos where npaquete = @npaquete'
+                );
+
+            console.log(document)
+
         let subresult = await pool.request()
             .input('npaquete', sql.NVarChar, packageId)
             .query(

@@ -65,6 +65,21 @@ app.use("/api/v1/reports", authenticate, v1ReportsRouter);
 
 const PORT = process.env.PORT || 5252; 
 
+
+app.get('/api/get-document/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(DOCUMENTS_PATH, filename);
+  const absolutePath = path.resolve(filePath);
+
+  fs.access(absolutePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).json({ error: 'Archivo no encontrado' });
+    } else {
+      res.sendFile(absolutePath);
+    }
+  });
+});
+
 app.listen(PORT, () => { 
     console.log(`\n API is listening on port ${PORT}`);
     V1SwaggerDocs(app, PORT);
