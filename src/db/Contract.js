@@ -61,16 +61,6 @@ const createNewContract = async (userData, contractData) => {
                     )
             }
 
-            for (let i = 0; i < contractData.documentos.length; i++) {
-                let subresult = await pool.request()
-                    .input('npaquete', sql.NVarChar, contractData.npaquete)
-                    .input('xruta', sql.Bit, contractData.documentos[i].ruta)
-                    .input('fingreso', sql.DateTime, new Date())
-                    .query(
-                        'insert into pcdocumentos (npaquete, xruta, fingreso) values (@npaquete, @xruta, @fingreso)'
-                    )
-            }
-
         }
         //let treatments = [];
         //contractData.tratamientos.forEach(treatment => treatments.push(treatment.cgrupo + ' - ' + treatment.ctratamiento));
@@ -146,7 +136,6 @@ const getOneContract = async (packageId) => {
                 'select xruta from pcdocumentos where npaquete = @npaquete'
                 );
 
-            console.log(document)
 
         let subresult = await pool.request()
             .input('npaquete', sql.NVarChar, packageId)
@@ -154,6 +143,7 @@ const getOneContract = async (packageId) => {
                 'select ncliente, cgrupo, ctratamiento, cgrupo_ant, ctratamiento_ant, xtratamiento, xtratamiento_ant, ncliente_ant, mprecio_min, nsesiones, xcomentario, bactivo '
                 + 'from vwbuscartratamientosxcontrato where npaquete = @npaquete'
             )
+
         let clientes = subresult.recordset.map(function (client) {
             return {
                 ncliente: client.ncliente,
@@ -169,11 +159,23 @@ const getOneContract = async (packageId) => {
                     nsesiones: client.nsesiones,
                     xcomentario: client.xcomentario,
                     bactivo: client.bactivo
-                }
+                },
+                documentos : document.recordsets
             }
         });
+
+        let documentos = document.recordset.map(function (document) {
+            return {
+                ruta: document.xruta,
+            }
+        });
+
         result.recordset[0].clientes = clientes;
-        return result.recordset[0];
+        return { 
+            value : result.recordset[0],
+            documents : documentos
+        
+        };
     }
     catch (error) {
         console.log(error.message);
@@ -241,6 +243,29 @@ const updateOneContract = async (userData, contractChanges, packageId) => {
         }
         return {
             npaquete: packageId
+        };
+    }
+    catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
+const uploadDocumentOneContract = async (userData, contractChanges, packageId) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        for (let i = 0; i < contractChanges.length; i++) {
+            let result = await pool.request()
+                .input('xruta', sql.NVarChar, contractChanges[i].ruta)
+                .input('npaquete', sql.NVarChar, packageId)
+                .input('fingreso', sql.DateTime, new Date())
+                .input('cusuario', sql.Numeric(4,0), userData.cusuario)
+                .query('insert into pcdocumentos (xruta , npaquete, fingreso, cusuario) values (@xruta, @npaquete, @fingreso, @cusuario) ')
+        }
+        return {
+            status: true
         };
     }
     catch (error) {
@@ -508,6 +533,7 @@ export default {
     getAllContracts,
     getOneContract,
     updateOneContract,
+    uploadDocumentOneContract,
     getOneContractTreatment,
     changeOneContractTreatment,
     addSessionsToTreatment,

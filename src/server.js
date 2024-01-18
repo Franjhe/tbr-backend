@@ -30,6 +30,9 @@ import v1ReportsRouter from './v1/routes/reportsRoutes.js';
 import fileExtension from 'file-extension';
 import multer from 'multer';
 const { diskStorage } = multer;
+import path from 'path';
+import fs from 'fs';
+
 
 const app = express(); 
 

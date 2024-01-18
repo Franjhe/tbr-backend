@@ -127,6 +127,24 @@ const updateOneContract = async (req, res) => {
         });
 }
 
+const uploadDocumentOneContract = async (req, res) => {
+    const updatedContract = await contractService.uploadDocumentOneContract(res.locals.decodedJWT, req.body, req.params.packageId);
+    if (updatedContract.error){
+        return res
+            .status(500)
+            .send({
+                status: false,
+                message: updatedContract.error
+            });
+    }
+    return res
+        .status(201)
+        .send({
+            status: true,
+            message: `El Contrato N° ${updatedContract.npaquete} ha sido actualizado exitosamente`
+        });
+}
+
 const updateOneContractTreatment = async (req, res) => {
     const updatedContractTreatment = await contractService.updateOneContractTreatment(res.locals.decodedJWT, req.params.packageId, req.body.tratamientoEliminado, req.body.tratamientoNuevo);
     if (updatedContractTreatment.errorBadRequest) {
@@ -252,6 +270,7 @@ export default {
     getAllContracts,
     getOneContract,
     updateOneContract,
+    uploadDocumentOneContract,
     updateOneContractTreatment,
     createNewCourtesySession,
     decreaseNumberOfSessions,

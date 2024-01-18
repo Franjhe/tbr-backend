@@ -75,6 +75,17 @@ const updateOneContract = async (userData, contractChanges, packageId) => {
     return updatedContract;
 }
 
+const uploadDocumentOneContract = async (userData, Documents, packageId) => {
+    const uploadDocumentContract = await Contract.uploadDocumentOneContract(userData, Documents, packageId);
+    if (uploadDocumentContract.error) {
+        return {
+            error: uploadDocumentContract.error
+        }
+    }
+    return uploadDocumentContract;
+}
+
+
 const updateOneContractTreatment = async (userData, packageId, treatmentToDelete, treatmentToCreate) => {
     const verifiedDeleteTreatment = await Treatment.verifyIfTreatmentExists(treatmentToDelete.cgrupo, treatmentToDelete.ctratamiento);
     if (verifiedDeleteTreatment.error) {
@@ -253,8 +264,9 @@ export default {
     getAllContracts,
     getOneContract,
     updateOneContract,
+    uploadDocumentOneContract,
     updateOneContractTreatment,
     createNewCourtesySession,
     decreaseNumberOfSessions,
-    deleteOneContract
+    deleteOneContract,
 }
