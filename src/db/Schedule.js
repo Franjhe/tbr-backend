@@ -23,7 +23,7 @@ const getOneWeekSchedule = async (startOfWeek, endOfWeek, searchData) => {
             .input('bactivo', sql.Bit, true)
             .query(
                 'select ccita, ncliente, csucursal, ccabina, cgrupo, cestatus_cita, cterapeuta, fentrada, fsalida, bactivo, '
-                + 'xcliente, xsucursal, xcabina, xgrupo, xestatus_cita, xterapeuta '
+                + 'xcliente, xsucursal, xcabina, xgrupo, xestatus_cita, xterapeuta, xobservacion '
                 + 'from vwbuscarcitaxsemana where fentrada between @finiciosemana and @ffinsemana and csucursal = @csucursal and ccabina = @ccabina and bactivo = @bactivo '
                 + 'order by fentrada'
             );
@@ -121,10 +121,11 @@ const createNewAppointment = async (appointmentData) => {
             .input('cestatus_cita', sql.Int, 1)
             .input('fentrada', sql.DateTime, appointmentData.fentrada)
             .input('fsalida', sql.DateTime, appointmentData.fsalida)
+            .input('xobservacion', sql.NVarChar, appointmentData.xobservacion ? appointmentData.xobservacion: undefined)
             .input('bactivo', sql.Bit, true)
             .query(
-                'insert into agcitas (ncliente, csucursal, ccabina, cestatus_cita, fentrada, fsalida, bactivo) output inserted.ccita '
-                          + 'values (@ncliente, @csucursal, @ccabina, @cestatus_cita, @fentrada, @fsalida, @bactivo)'
+                'insert into agcitas (ncliente, csucursal, ccabina, cestatus_cita, fentrada, fsalida, bactivo, xobservacion) output inserted.ccita '
+                          + 'values (@ncliente, @csucursal, @ccabina, @cestatus_cita, @fentrada, @fsalida, @bactivo, @xobservacion)'
             )
         for (let i = 0; i < appointmentData.tratamientos.length; i++) {
             await pool.request()

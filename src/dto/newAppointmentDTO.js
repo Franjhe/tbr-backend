@@ -23,6 +23,9 @@ const NewAppointmentDTOSchema = Type.Object(
                 format: 'must match format YYYY-MM-DDTHH:mm:ss.sssZ'
             },
         }),
+        xobservacion: Type.String({
+            maxLength: 400
+        }),
         fsalida: Type.String({
             format: 'date-time',
             errorMessage: {
