@@ -27,7 +27,7 @@ const createNewPaymentInstallments = async (userData, paymentInstallmentsData) =
         xconceptopago = 'Anticipo de tratamiento';
     }
     paymentInstallmentsData.xconceptopago = xconceptopago;
-    const createdReceipt = await Receipt.createNewReceipt(userData.cusuario, contractData.ncliente, contractData.npaquete, paymentInstallmentsData);
+    const createdReceipt = await Receipt.createNewReceipt(userData.cusuario, contractData.value.ncliente, contractData.value.npaquete, paymentInstallmentsData);
     if (createdReceipt.error) {
         return {
             error: createdReceipt.error

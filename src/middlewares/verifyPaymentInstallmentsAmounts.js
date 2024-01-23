@@ -15,7 +15,7 @@ const verifyPaymentInstallmentsAmounts = async (req, res, next) => {
         paymentInstallmentsTotalAmount += paymentInstallment.mcuota;
     })
     let totalContractAmount = req.body.manticipo + paymentInstallmentsTotalAmount;
-    if (totalContractAmount !== contract.mpaquete_cont) {
+    if (totalContractAmount !== contract.value.mpaquete_cont) {
         return res
             .status(400)
             .send({
