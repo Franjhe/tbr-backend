@@ -27,6 +27,7 @@ import v1CollectionRouter from './v1/routes/collectionRoutes.js';
 import v1ScheduleRouter from './v1/routes/scheduleRoutes.js';
 import v1CabinRouter from './v1/routes/cabinRoutes.js';
 import v1ReportsRouter from './v1/routes/reportsRoutes.js';
+import v1UserRouter from './v1/routes/userRoutes.js';
 import fileExtension from 'file-extension';
 import multer from 'multer';
 const { diskStorage } = multer;
@@ -65,6 +66,9 @@ app.use("/api/v1/collections", authenticate, v1CollectionRouter);
 app.use("/api/v1/schedules", authenticate, v1ScheduleRouter);
 app.use("/api/v1/cabins", authenticate, v1CabinRouter);
 app.use("/api/v1/reports", authenticate, v1ReportsRouter);
+
+app.use("/api/v1/users", authenticate, v1UserRouter);
+
 
 const PORT = process.env.PORT || 5252; 
 
