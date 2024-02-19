@@ -96,17 +96,20 @@ const verifyIfContractExists = async (packageId) => {
     }
 }
 
-const getAllContracts = async (searchData) => {
+const getAllContracts = async (searchData,userData) => {
+
     try {
         let pool = await sql.connect(sqlConfig);
         let result = await pool.request()
             .input('csucursal', sql.Int, searchData.csucursal ? searchData.csucursal : null)
+            .input('cusuario_vend', sql.Int, userData.cusuario ? userData.cusuario : null)
             .input('ncliente', sql.Int, searchData.ncliente ? searchData.ncliente : null)
             .input('bactivo', sql.Bit, true)
             .query(
                 `select npaquete, ncliente, xcliente, xsucursal, fcontrato, xvendedor, ipaquete_tipo, mpaquete_cont, bactivo, bcuotas, bprimerasesion `
-                + `from vwbuscarcontratos where bactivo = @bactivo ${searchData.ncliente ? `and ncliente = '${searchData.ncliente}'` : ''}  ${searchData.csucursal ? `and csucursal = '${searchData.csucursal}'` : ''} order by fcontrato desc`
+                + `from vwbuscarcontratos where bactivo = @bactivo ${searchData.ncliente ? `and ncliente = '${searchData.ncliente}'` : ''}  ${searchData.csucursal ? `and csucursal = '${searchData.csucursal}'` : ''}  ${userData.cusuario ? `and cusuario_vend = '${userData.cusuario}'` : ''}order by fcontrato desc`
             );
+
         return result.recordset;
     }
     catch (error) {

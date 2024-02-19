@@ -54,7 +54,7 @@ const createNewContract = async (req, res) => {
 }
 
 const getAllContracts = async (req, res) => {
-    const contracts = await contractService.getAllContracts(req.body);
+    const contracts = await contractService.getAllContracts(req.body, res.locals.decodedJWT);
     if (contracts.error) {
         return res
             .status(500)

@@ -24,8 +24,8 @@ const createNewContract = async (userData, contractData) => {
     return createdContract;
 }
 
-const getAllContracts = async (searchData) => {
-    const contracts = await Contract.getAllContracts(searchData);
+const getAllContracts = async (searchData, idUser) => {
+    const contracts = await Contract.getAllContracts(searchData,idUser);
     if (contracts.error) {
         return {
             error: contracts.error
@@ -46,11 +46,11 @@ const getOneContract = async (userData, packageId) => {
             errorNotFound: 'No existe un contrato con el Id suministrado'
         }
     }
-    if (!userData.bmaster && parseInt(userData.csucursal) !== parseInt(contract.csucursal)) {
-        return {
-            permissionError: 'El usuario solo puede visualizar los contratos de la sucursal a la que pertenece.'
-        }
-    }
+    // if (!userData.bmaster && parseInt(userData.csucursal) !== parseInt(contract.csucursal)) {
+    //     return {
+    //         permissionError: 'El usuario solo puede visualizar los contratos de la sucursal a la que pertenece.'
+    //     }
+    // }
     return contract;
 }
 
