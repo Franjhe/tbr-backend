@@ -63,9 +63,10 @@ const createNewUser = async (userData) => {
             .input('ipermite_cambio', sql.Int, 1)
             .input('ibloqueado', sql.NVarChar, 'N')
             .input('email', sql.NVarChar, userData.xemail) 
+            .input('crol', sql.NChar(10), userData.crol) 
             .query('insert into seusuarios '+
-            '( cgrupousuarios, cpais, csucursal,  xnombre, xapellido, xclavesec, xusuario, clogin, ipermite_cambio, ibloqueado, email) '+
-            'values ( @cgrupousuarios, @cpais, @csucursal,  @xnombre, @xapellido, @xclavesec, @xusuario, @clogin, @ipermite_cambio, @ibloqueado, @email)');  
+            '( cgrupousuarios, cpais, csucursal,  xnombre, xapellido, xclavesec, xusuario, clogin, ipermite_cambio, ibloqueado, email,crol) '+
+            'values ( @cgrupousuarios, @cpais, @csucursal,  @xnombre, @xapellido, @xclavesec, @xusuario, @clogin, @ipermite_cambio, @ibloqueado, @email,@crol)');  
         return { result: result};
     }
     catch (error) {
