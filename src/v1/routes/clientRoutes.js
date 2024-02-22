@@ -392,7 +392,7 @@ router
      *             schema:
      *               $ref: '#/components/responses/ErrorResponse' 
      */
-    .patch("/:clientId", authorizate(1, false, true, false), updatedClientDTO.validateUpdatedClientDTO, verifyIfClientExists, verifyDateOfBirth, verifyIfStateExists, verifyIfCityExists, verifyIfCityBelongsToState, clientController.updateOneClient)
+    .patch("/:clientId", authorizate(1, false, true, false),verifyIfClientExists, verifyDateOfBirth, verifyIfStateExists, verifyIfCityExists, verifyIfCityBelongsToState, clientController.updateOneClient)
 
     /**
      * @swagger
