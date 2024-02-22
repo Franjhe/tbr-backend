@@ -25,27 +25,13 @@ const createNewContract = async (userData, contractData) => {
 }
 
 const getAllContracts = async (searchData, idUser) => {
-    let contractsData = []
-    if(idUser.bmaster){
-        const contracts = await Contract.getAllContracts(searchData,idUser);
-        if (contracts.error) {
-            return {
-                error: contracts.error
-            }
+    const contracts = await Contract.getAllContracts(searchData,idUser);
+    if (contracts.error) {
+        return {
+            error: contracts.error
         }
-        contractsData = contracts
-    }else{
-        const contracts = await Contract.getAllContractsSeller(searchData,idUser);
-        if (contracts.error) {
-            return {
-                error: contracts.error
-            }
-        }
-        contractsData = contracts
-
     }
-
-    return contractsData;
+    return contracts;
 }
 
 const getOneContract = async (userData, packageId) => {
