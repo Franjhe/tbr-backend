@@ -27,7 +27,7 @@ const reportsCollection = async (reportsCollection) => {
                 '  SELECT ' +
                 '    npaquete, ' +
                 '    fcontrato, ' +
-                '    fpago, ' +
+                '    fcobro, ' +
                 '    mcuota, ' +
                 '    mpagado, ' +
                 '    mpaquete_cont, ' +
@@ -38,12 +38,12 @@ const reportsCollection = async (reportsCollection) => {
                 '    xpos, ' +
                 '    ROW_NUMBER() OVER (PARTITION BY ccuota, npaquete ORDER BY (SELECT NULL)) AS RowNum ' +
                 '  FROM vwbuscarcobranzapendientexcliente ' +
-                '  WHERE bactivo = @bactivo AND csucursal = @csucursal AND fpago >= @fdesde AND fpago <= @fhasta ' +
+                '  WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta ' +
                 ') ' +
                 'SELECT ' +
                 '  npaquete, ' +
                 '  fcontrato, ' +
-                '  fpago, ' +
+                '  fcobro, ' +
                 '  mcuota, ' +
                 '  mpagado, ' +
                 '  mpaquete_cont, ' +
