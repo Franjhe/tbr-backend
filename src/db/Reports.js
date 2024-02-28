@@ -117,6 +117,7 @@ const reportsSales = async (reportsSales) => {
                             WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
                             AND (@cvendedor IS NULL OR cvendedor = @cvendedor)
                             AND (@csucursal IS NULL OR csucursal = @csucursal)
+                            AND bactivo = @bactivo
                         `);
     
                     results.push(result.recordset);
