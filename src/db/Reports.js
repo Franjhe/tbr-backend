@@ -11,6 +11,65 @@ const sqlConfig = {
     }
 }
 
+// const reportsCollection = async (reportsCollection) => {
+//     try {
+//         let pool = await sql.connect(sqlConfig);
+//         let results = [];
+//         for (let i = 0; i < reportsCollection.csucursal.length; i++) {
+//             const sucursal= reportsCollection.csucursal[i]
+//             let result = await pool.request()
+//             .input('csucursal', sql.Int, sucursal)
+//             .input('fdesde', sql.Date, reportsCollection.fdesde)
+//             .input('fhasta', sql.Date, reportsCollection.fhasta)
+//             .input('bactivo', sql.Bit, true)
+//             .input('ipago', sql.Char, 'A')
+//             .query(
+//                 'WITH RankedResults AS (' +
+//                 '  SELECT ' +
+//                 '    npaquete, ' +
+//                 '    fcontrato, ' +
+//                 '    fcobro, ' +
+//                 '    mcuota, ' +
+//                 '    mpagado, ' +
+//                 '    mpaquete_cont, ' +
+//                 '    xsucursal, ' +
+//                 '    xmodalidad_pago, ' +
+//                 '    xtipo_tarjeta, ' +
+//                 '    ncliente, ' +
+//                 '    xpos, ' +
+//                 '    ROW_NUMBER() OVER (PARTITION BY ccuota, npaquete ORDER BY (SELECT NULL)) AS RowNum ' +
+//                 '  FROM vwbuscarcobranzapendientexcliente ' +
+//                 '  WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1 ' +
+//                 ') ' +
+//                 'SELECT ' +
+//                 '  npaquete, ' +
+//                 '  fcontrato, ' +
+//                 '  fcobro, ' +
+//                 '  mcuota, ' +
+//                 '  mpagado, ' +
+//                 '  mpaquete_cont, ' +
+//                 '  xsucursal, ' +
+//                 '  xmodalidad_pago, ' +
+//                 '  xtipo_tarjeta, ' +
+//                 '  ncliente, ' +
+//                 '  xpos ' +
+//                 'FROM ' +
+//                 '  RankedResults ' +
+//                 'WHERE ' +
+//                 '  RowNum = 1 ' +
+//                 'ORDER BY npaquete'
+//             );
+//             results.push(result.recordset);
+//           }
+//           return results;
+//     } catch (error) {
+//         console.log(error.message);
+//         return {
+//             error: error.message
+//         }
+//     }
+// }
+
 const reportsCollection = async (reportsCollection) => {
     try {
         let pool = await sql.connect(sqlConfig);
@@ -22,42 +81,7 @@ const reportsCollection = async (reportsCollection) => {
             .input('fdesde', sql.Date, reportsCollection.fdesde)
             .input('fhasta', sql.Date, reportsCollection.fhasta)
             .input('bactivo', sql.Bit, true)
-            .query(
-                'WITH RankedResults AS (' +
-                '  SELECT ' +
-                '    npaquete, ' +
-                '    fcontrato, ' +
-                '    fcobro, ' +
-                '    mcuota, ' +
-                '    mpagado, ' +
-                '    mpaquete_cont, ' +
-                '    xsucursal, ' +
-                '    xmodalidad_pago, ' +
-                '    xtipo_tarjeta, ' +
-                '    ncliente, ' +
-                '    xpos, ' +
-                '    ROW_NUMBER() OVER (PARTITION BY ccuota, npaquete ORDER BY (SELECT NULL)) AS RowNum ' +
-                '  FROM vwbuscarcobranzapendientexcliente ' +
-                '  WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta ' +
-                ') ' +
-                'SELECT ' +
-                '  npaquete, ' +
-                '  fcontrato, ' +
-                '  fcobro, ' +
-                '  mcuota, ' +
-                '  mpagado, ' +
-                '  mpaquete_cont, ' +
-                '  xsucursal, ' +
-                '  xmodalidad_pago, ' +
-                '  xtipo_tarjeta, ' +
-                '  ncliente, ' +
-                '  xpos ' +
-                'FROM ' +
-                '  RankedResults ' +
-                'WHERE ' +
-                '  RowNum = 1 ' +
-                'ORDER BY npaquete'
-            );
+            .query('SELECT * FROM vwbuscarcobranzapendientexcliente WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1');
             results.push(result.recordset);
           }
           return results;
