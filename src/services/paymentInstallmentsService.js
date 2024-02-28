@@ -9,9 +9,11 @@ const createNewPaymentInstallments = async (userData, paymentInstallmentsData) =
             error: contractData.error
         }
     }
-    if (paymentInstallmentsData.manticipo < (contractData.mtotal_cont * 0.1) ) {
-        return {
-            errorInAdvance: 'El monto del anticipo debe de ser mínimo del 10% del monto total del contrato.'
+    if(!userData.bmaster){
+        if (paymentInstallmentsData.manticipo < (contractData.mtotal_cont * 0.1) ) {
+            return {
+                errorInAdvance: 'El monto del anticipo debe de ser mínimo del 10% del monto total del contrato.'
+            }
         }
     }
     if (paymentInstallmentsData.manticipo > contractData.mtotal_cont) {
