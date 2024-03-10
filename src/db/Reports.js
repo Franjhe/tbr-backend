@@ -81,7 +81,7 @@ const reportsCollection = async (reportsCollection) => {
             .input('fdesde', sql.Date, reportsCollection.fdesde)
             .input('fhasta', sql.Date, reportsCollection.fhasta)
             .input('bactivo', sql.Bit, true)
-            .query('SELECT * FROM vwbuscarcobranzapendientexcliente WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1');
+            .query('SELECT * FROM vwReport WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1');
             results.push(result.recordset);
           }
           return results;
@@ -113,7 +113,7 @@ const reportsSales = async (reportsSales) => {
                             SELECT fcontrato, npaquete, xnombre, csucursal, xsucursal, 
                                 mpaquete_cont, mcuota, (mpaquete_cont - mcuota) AS mpendiente, 
                                 cvendedor, xvendedor, bactivo
-                            FROM vwbuscarcobranzapendientexcliente
+                            FROM vwReport
                             WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
                             AND (@cvendedor IS NULL OR cvendedor = @cvendedor)
                             AND (@csucursal IS NULL OR csucursal = @csucursal)
@@ -133,7 +133,7 @@ const reportsSales = async (reportsSales) => {
                 SELECT fcontrato, npaquete, xnombre, csucursal, xsucursal, 
                     mpaquete_cont, mcuota, (mpaquete_cont - mcuota) AS mpendiente, 
                     cvendedor, xvendedor, bactivo
-                FROM vwbuscarcobranzapendientexcliente
+                FROM vwReport
                 WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
             `);
 
