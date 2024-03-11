@@ -226,6 +226,21 @@ const updateUser = async (userData) => {
     }
 }
 
+const getAllUser = async (userData) => {
+    try {
+
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool.request()
+            .query('select * from vwbuscarusuarioxlogin')
+
+            return result.recordset;
+        }
+    catch (error) {
+        console.log(error.message);
+        return { error: error.message };
+    }
+}
+
 export default {
     verifyIfUsernameExists,
     verifyIfPasswordMatchs,
@@ -237,5 +252,6 @@ export default {
     getModulePermission,
     createNewUserTera,
     createNewUserSeller,
-    updateUser
+    updateUser,
+    getAllUser
 }
