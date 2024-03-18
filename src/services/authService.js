@@ -103,11 +103,22 @@ const verifyModulePermission = async (cmodulo, crol) => {
     return modulePermission;
 }
 
+const searchSeller = async (searchSeller) => {
+    const seller = await User.searchSeller(searchSeller);
+    if (seller.error) {
+        return {
+            error: seller.error
+        }
+    }
+    return seller;
+}
+
 export default {
     verifyIfUsernameExists,
     verifyIfPasswordMatchs,
     createJWT,
     getOneUser,
     getUserModules,
-    verifyModulePermission
+    verifyModulePermission,
+    searchSeller
 }

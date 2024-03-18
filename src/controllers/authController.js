@@ -55,6 +55,16 @@ const createJWT = async (req, res) => {
             });
     }
     const jwt = authService.createJWT(user);
+
+    const seller = await authService.searchSeller(user.xusuario);
+    if (seller.error) {
+        return res
+            .status(500)
+            .send({
+                status: false,
+                message: seller.error
+            });
+    }
     return res
         .status(201).send({ 
             status: true, 
@@ -64,6 +74,7 @@ const createJWT = async (req, res) => {
                 csucursal: user.csucursal,
                 xsucursal: user.xsucursal,
                 bmaster: user.bmaster,
+                cvendedor: seller.cvendedor,
                 token: 'Bearer ' + jwt
             }
         });

@@ -241,6 +241,23 @@ const getAllUser = async (userData) => {
     }
 }
 
+const searchSeller = async (seller) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let result = await pool.request()
+           .input('xvendedor', sql.NVarChar, seller)
+           .query('select cvendedor from mavendedores where xvendedor = @xvendedor')
+        if (result.rowsAffected < 1) {
+            return false;
+        }
+        return result.recordset[0];
+    }
+    catch (error) {
+        console.log(error.message);
+        return { error: error.message };
+    }
+}
+
 export default {
     verifyIfUsernameExists,
     verifyIfPasswordMatchs,
@@ -253,5 +270,6 @@ export default {
     createNewUserTera,
     createNewUserSeller,
     updateUser,
-    getAllUser
+    getAllUser,
+    searchSeller
 }
