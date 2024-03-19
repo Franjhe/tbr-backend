@@ -76,17 +76,31 @@ const reportsCollection = async (reportsCollection) => {
         let results = [];
 
         if(reportsCollection.cvendedor){
-            for (let i = 0; i < reportsCollection.csucursal.length; i++) {
-                const sucursal= reportsCollection.csucursal[i]
+            if(reportsCollection.csucursal.length > 0){
+                for (let i = 0; i < reportsCollection.csucursal.length; i++) {
+                    const sucursal= reportsCollection.csucursal[i]
+                    
+                    let result = await pool.request()
+                    .input('csucursal', sql.Int, sucursal)
+                    .input('fdesde', sql.Date, reportsCollection.fdesde)
+                    .input('fhasta', sql.Date, reportsCollection.fhasta)
+                    .input('cvendedor', sql.Int, reportsCollection.cvendedor)
+                    .input('bactivo', sql.Bit, true)
+                    .query('SELECT * FROM vwReport WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1 AND cvendedor = @cvendedor');
+                    results.push(result.recordset);
+                }
+            }else{
+                console.log(reportsCollection)
                 let result = await pool.request()
-                .input('csucursal', sql.Int, sucursal)
+                .input('csucursal', sql.Int, reportsCollection.csucursal)
                 .input('fdesde', sql.Date, reportsCollection.fdesde)
                 .input('fhasta', sql.Date, reportsCollection.fhasta)
                 .input('cvendedor', sql.Int, reportsCollection.cvendedor)
                 .input('bactivo', sql.Bit, true)
                 .query('SELECT * FROM vwReport WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1 AND cvendedor = @cvendedor');
-                results.push(result.recordset);
-              }
+                results.push(result.recordset);  
+            }
+
         }else{
             for (let i = 0; i < reportsCollection.csucursal.length; i++) {
                 const sucursal= reportsCollection.csucursal[i]
@@ -99,7 +113,6 @@ const reportsCollection = async (reportsCollection) => {
                 results.push(result.recordset);
             }
         }
-
 
           return results;
     } catch (error) {
