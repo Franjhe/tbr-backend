@@ -83,7 +83,7 @@ const getAllContractDebtCollectionsPending = async (Pending) => {
             .input('csucursal', sql.Int, Pending.csucursal)
             .input('fdesde', sql.Date, Pending.fdesde)
             .input('fhasta', sql.Date, Pending.fhasta)
-            .input('bpago', sql.Bit, true)
+            .input('bpago', sql.Bit, false)
             .input('bactivo', sql.Bit, true)
             .query(
                 'select npaquete, mpaquete_cont, fcontrato, xsucursal, ccuota, ipago, mcuota, fpago , ncliente '
