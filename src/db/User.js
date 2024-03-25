@@ -258,6 +258,23 @@ const searchSeller = async (seller) => {
     }
 }
 
+const updateLoginUser = async (userData) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        let Seller = await pool.request()
+        .input('bactivo', sql.Bit, userData.bactivo)
+        .input('contrasena', sql.VarChar(250), userData.contrasena)
+        .input('usuario', sql.Int, userData.usuario)
+        .query('update seusuarios set xclavesec = @contrasena, bactivo = @bactivo where cusuario = @cusuario' );  
+        return { result: Seller.recordset};
+    }
+    catch (error) {
+        console.log(error.message);
+        return { error: error.message };
+    }
+}
+
+
 export default {
     verifyIfUsernameExists,
     verifyIfPasswordMatchs,
@@ -271,5 +288,6 @@ export default {
     createNewUserSeller,
     updateUser,
     getAllUser,
-    searchSeller
+    searchSeller,
+    updateLoginUser,
 }

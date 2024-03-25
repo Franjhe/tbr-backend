@@ -57,8 +57,22 @@ const getAllUser = async () => {
     return allUser;
 }
 
+const updateLoginUser = async (data) => {
+
+    const allUser = await User.updateLoginUser(data);
+
+    if (allUser.error) {
+        return {
+            error: allUser.error
+        }
+    }
+
+    return allUser;
+}
+
 export default {
     CreateUser,
     updateUser,
-    getAllUser
+    getAllUser,
+    updateLoginUser
 }

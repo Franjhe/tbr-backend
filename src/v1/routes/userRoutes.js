@@ -6,6 +6,7 @@ const router = express.Router();
 router
     .post("/create", userController.createUser)
     .post("/update", userController.updateUser)
+    .post("/update-login", userController.updateUserLogin)
     .get("/user", userController.getAllUser)
 
 

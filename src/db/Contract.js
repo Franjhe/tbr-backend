@@ -105,7 +105,7 @@ const getAllContracts = async (searchData) => {
             .input('ncliente', sql.Int, searchData.ncliente ? searchData.ncliente : null)
             .input('bactivo', sql.Bit, true)
             .query(
-                `select npaquete, ncliente, xcliente, xsucursal, fcontrato, xvendedor, ipaquete_tipo, mpaquete_cont, bactivo, bcuotas, bprimerasesion `
+                `select npaquete,documentos_paquete, ncliente, xcliente, xsucursal, fcontrato, xvendedor, ipaquete_tipo, mpaquete_cont, bactivo, bcuotas, bprimerasesion `
                 + `from vwbuscarcontratos where bactivo = @bactivo ${searchData.ncliente ? `and ncliente = '${searchData.ncliente}'` : ''}  ${searchData.csucursal ? `and csucursal = '${searchData.csucursal}'` : ''}  order by fcontrato desc`
             );
         return result.recordset;
@@ -258,9 +258,10 @@ const updateOneContract = async (userData, contractChanges, packageId) => {
                 let subresult = await pool.request()
                     .input('npaquete', sql.NVarChar, contractData.npaquete)
                     .input('xruta', sql.Bit, contractData.documentos[i].ruta)
+                    .input('ndocumento', sql.Numeric(18), i + 1)
                     .input('fingreso', sql.DateTime, new Date())
                     .query(
-                        'insert into pcdocumentos (npaquete, xruta, fingreso) values (@npaquete, @xruta, @fingreso)'
+                        'insert into pcdocumentos (npaquete, xruta, fingreso,ndocumento ) values (@npaquete, @xruta, @fingreso ,@ndocumento)'
                     )
             }
             

@@ -58,8 +58,29 @@ const getAllUser = async (req, res) => {
         });
 }
 
+const updateUserLogin = async (req, res) => {
+    const createUser = await userService.updateLoginUser(req.body);
+    if (createUser.error) {
+        return res
+            .status(500)
+            .send({
+                status: false,
+                message: createUser.error
+            });
+    }
+    return res
+        .status(200)
+        .send({
+            status: true,
+            data: {
+                message: 'Usuario creado con exito'
+            }
+        });
+}
+
 export default {
     createUser,
     updateUser,
-    getAllUser
+    getAllUser,
+    updateUserLogin
 }
