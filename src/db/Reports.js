@@ -140,15 +140,46 @@ const reportsSales = async (reportsSales) => {
                         .input('bactivo', sql.Bit, true)
                         .input('cvendedor', sql.Int, vendedor)
                         .query(`
-                            SELECT fcontrato, npaquete, xnombre, csucursal, xsucursal, 
-                                mpaquete_cont, mcuota, (mpaquete_cont - mcuota) AS mpendiente, 
-                                cvendedor, xvendedor, bactivo
-                            FROM vwReport
-                            WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
-                            AND (@cvendedor IS NULL OR cvendedor = @cvendedor)
-                            AND (@csucursal IS NULL OR csucursal = @csucursal)
-                            AND bactivo = @bactivo
-                        `);
+                        WITH RankedResults AS (
+                          SELECT 
+                            fcontrato, 
+                            npaquete, 
+                            xnombre, 
+                            csucursal, 
+                            xsucursal, 
+                            mpaquete_cont, 
+                            mcuota, 
+                            (mpaquete_cont - mcuota) AS mpendiente, 
+                            cvendedor, 
+                            xvendedor, 
+                            bactivo,
+                            ROW_NUMBER() OVER (PARTITION BY npaquete, mpagado ORDER BY (SELECT NULL)) AS RowNum 
+                          FROM vwReport
+                          WHERE ipago = 'A' 
+                            AND fcontrato >= @fdesde 
+                            AND fcontrato <= @fhasta
+                            AND csucursal = @csucursal
+                            AND cvendedor = @cvendedor
+                            AND bactivo = 1
+                        )
+                        SELECT 
+                          fcontrato, 
+                          npaquete, 
+                          xnombre, 
+                          csucursal, 
+                          xsucursal, 
+                          mpaquete_cont, 
+                          mcuota, 
+                          mpendiente, 
+                          cvendedor, 
+                          xvendedor, 
+                          bactivo
+                        FROM 
+                          RankedResults 
+                        WHERE 
+                          RowNum = 1 
+                        ORDER BY npaquete
+                      `);
     
                     results.push(result.recordset);
                 }
@@ -163,14 +194,45 @@ const reportsSales = async (reportsSales) => {
                     .input('ipago', sql.Char, 'A')
                     .input('bactivo', sql.Bit, true)
                     .query(`
-                        SELECT fcontrato, npaquete, xnombre, csucursal, xsucursal, 
-                            mpaquete_cont, mcuota, (mpaquete_cont - mcuota) AS mpendiente, 
-                            cvendedor, xvendedor, bactivo
-                        FROM vwReport
-                        WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
-                        AND (@csucursal IS NULL OR csucursal = @csucursal)
-                        AND bactivo = @bactivo
-                    `);
+                    WITH RankedResults AS (
+                      SELECT 
+                        fcontrato, 
+                        npaquete, 
+                        xnombre, 
+                        csucursal, 
+                        xsucursal, 
+                        mpaquete_cont, 
+                        mcuota, 
+                        (mpaquete_cont - mcuota) AS mpendiente, 
+                        cvendedor, 
+                        xvendedor, 
+                        bactivo,
+                        ROW_NUMBER() OVER (PARTITION BY npaquete, mpagado ORDER BY (SELECT NULL)) AS RowNum 
+                      FROM vwReport
+                      WHERE ipago = 'A' 
+                        AND fcontrato >= @fdesde 
+                        AND fcontrato <= @fhasta
+                        AND csucursal = @csucursal
+                        AND bactivo = 1
+                    )
+                    SELECT 
+                      fcontrato, 
+                      npaquete, 
+                      xnombre, 
+                      csucursal, 
+                      xsucursal, 
+                      mpaquete_cont, 
+                      mcuota, 
+                      mpendiente, 
+                      cvendedor, 
+                      xvendedor, 
+                      bactivo
+                    FROM 
+                      RankedResults 
+                    WHERE 
+                      RowNum = 1 
+                    ORDER BY npaquete
+                  `);
     
                 results.push(result.recordset);
             }
@@ -184,14 +246,45 @@ const reportsSales = async (reportsSales) => {
                         .input('bactivo', sql.Bit, true)
                         .input('cvendedor', sql.Int, vendedor)
                         .query(`
-                            SELECT fcontrato, npaquete, xnombre, csucursal, xsucursal, 
-                                mpaquete_cont, mcuota, (mpaquete_cont - mcuota) AS mpendiente, 
-                                cvendedor, xvendedor, bactivo
-                            FROM vwReport
-                            WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
-                            AND (@cvendedor IS NULL OR cvendedor = @cvendedor)
-                            AND bactivo = @bactivo
-                        `);
+                        WITH RankedResults AS (
+                          SELECT 
+                            fcontrato, 
+                            npaquete, 
+                            xnombre, 
+                            csucursal, 
+                            xsucursal, 
+                            mpaquete_cont, 
+                            mcuota, 
+                            (mpaquete_cont - mcuota) AS mpendiente, 
+                            cvendedor, 
+                            xvendedor, 
+                            bactivo,
+                            ROW_NUMBER() OVER (PARTITION BY npaquete, mpagado ORDER BY (SELECT NULL)) AS RowNum 
+                          FROM vwReport
+                          WHERE ipago = 'A' 
+                            AND fcontrato >= @fdesde 
+                            AND fcontrato <= @fhasta
+                            AND cvendedor = @cvendedor
+                            AND bactivo = 1
+                        )
+                        SELECT 
+                          fcontrato, 
+                          npaquete, 
+                          xnombre, 
+                          csucursal, 
+                          xsucursal, 
+                          mpaquete_cont, 
+                          mcuota, 
+                          mpendiente, 
+                          cvendedor, 
+                          xvendedor, 
+                          bactivo
+                        FROM 
+                          RankedResults 
+                        WHERE 
+                          RowNum = 1 
+                        ORDER BY npaquete
+                      `);
     
                     results.push(result.recordset);
                 }
@@ -202,13 +295,44 @@ const reportsSales = async (reportsSales) => {
             .input('ipago', sql.Char, 'A')
             .input('bactivo', sql.Bit, true)
             .query(`
-                SELECT fcontrato, npaquete, xnombre, csucursal, xsucursal, 
-                    mpaquete_cont, mcuota, (mpaquete_cont - mcuota) AS mpendiente, 
-                    cvendedor, xvendedor, bactivo
-                FROM vwReport
-                WHERE ipago = @ipago AND fcontrato >= @fdesde AND fcontrato <= @fhasta
-                AND BACTIVO = @bactivo
-            `);
+            WITH RankedResults AS (
+              SELECT 
+                fcontrato, 
+                npaquete, 
+                xnombre, 
+                csucursal, 
+                xsucursal, 
+                mpaquete_cont, 
+                mcuota, 
+                (mpaquete_cont - mcuota) AS mpendiente, 
+                cvendedor, 
+                xvendedor, 
+                bactivo,
+                ROW_NUMBER() OVER (PARTITION BY npaquete, mpagado ORDER BY (SELECT NULL)) AS RowNum 
+              FROM vwReport
+              WHERE ipago = 'A' 
+                AND fcontrato >= @fdesde 
+                AND fcontrato <= @fhasta
+                AND bactivo = 1
+            )
+            SELECT 
+              fcontrato, 
+              npaquete, 
+              xnombre, 
+              csucursal, 
+              xsucursal, 
+              mpaquete_cont, 
+              mcuota, 
+              mpendiente, 
+              cvendedor, 
+              xvendedor, 
+              bactivo
+            FROM 
+              RankedResults 
+            WHERE 
+              RowNum = 1 
+            ORDER BY npaquete
+          `);
 
              results.push(result.recordset);
         }
