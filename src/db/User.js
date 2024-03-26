@@ -265,7 +265,7 @@ const updateLoginUser = async (userData) => {
         .input('bactivo', sql.Bit, userData.bactivo)
         .input('contrasena', sql.VarChar(250), userData.contrasena)
         .input('usuario', sql.Int, userData.usuario)
-        .query('update seusuarios set xclavesec = @contrasena, bactivo = @bactivo where cusuario = @cusuario' );  
+        .query('update seusuarios set xclavesec = @contrasena, bactivo = @bactivo where cusuario = @usuario' );  
         return { result: Seller.recordset};
     }
     catch (error) {
