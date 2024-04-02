@@ -14,6 +14,7 @@ const sqlConfig = {
 }
 
 const getAllClients = async (clientData) => {
+    console.log(clientData)
     try {
         let pool = await sql.connect(sqlConfig);
         let result = await pool.request()
@@ -23,7 +24,7 @@ const getAllClients = async (clientData) => {
             .input('bactivo', sql.Bit, true)
             .query(
                 `select ncliente, ncont_ant, xcliente, cid, csucursal `
-                + `from vwbuscarclientes where bactivo = @bactivo  ${clientData.csucursal ? `and csucursal = @csucursal` : '' }  ${clientData.xnombre ? `and xcliente like '%${clientData.xnombre}%'` : ''} ${clientData.cid ? `and cid = @cid` : '' } `
+                + `from vwbuscarclientes where bactivocli = @bactivo  ${clientData.csucursal ? `and csucursal = @csucursal` : '' }  ${clientData.xnombre ? `and xcliente like '%${clientData.xnombre}%'` : ''} ${clientData.cid ? `and cid = @cid` : '' } `
             );
         return result.recordset;
     }
@@ -43,7 +44,7 @@ const getOneClient = async (clientId) => {
             .input('bactivo', sql.Bit, true)
             .query(
                 `select ncliente, ncont_ant, xnombre, xapepaterno, xapematerno, xcliente, fnac, isexo, ctelefono, cid, xcorreo, fingreso, xdireccion, xpostal, cestado, cciudad, xcolonia, csucursal `
-                + `from vwbuscarclientes where bactivo = @bactivo and ncliente = @ncliente `
+                + `from vwbuscarclientes where bactivocli = @bactivo and ncliente = @ncliente `
             );
         if (result.rowsAffected[0] === 0) {
             return false;
