@@ -1,13 +1,16 @@
 import reportsService from '../services/reportsService.js';
 
-function formatDate(date) {
-    const formattedDate = new Date(date);
-    const day = formattedDate.getDate() + 1;
-    const month = formattedDate.getMonth() + 1;
-    const year = formattedDate.getFullYear();
+function formatDate() {
+    // Obtener la fecha actual
+    const currentDate = new Date();
 
-    // Formatear a 'dd/MM/yyyy'
-    const formattedString = `${day}/${month}/${year}`;
+    // Obtener el día, mes y año de la fecha actual
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1; // Los meses en JavaScript van de 0 a 11
+    const year = currentDate.getFullYear();
+
+    // Formatear la fecha como 'dd-MM-yyyy'
+    const formattedString = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
 
     return formattedString;
 }
@@ -31,6 +34,8 @@ const reportsCollection = async (req, res) => {
             });
     }
     const unifiedCollection = [].concat(...collection);
+
+    console.log(unifiedCollection)
 
     return res
         .status(200)
@@ -71,6 +76,39 @@ const reportsSales = async (req, res) => {
             sales: formattedList
         }
     });
+}
+
+function formatDateCustom(dateString) {
+    // Verificar si la cadena de fecha no está vacía, nula o no es una cadena válida
+    if (typeof dateString !== 'string' || !dateString.trim()) {
+        return null;
+    }
+
+    // Dividir la cadena de fecha en partes
+    const parts = dateString.split('/');
+
+    // Verificar si hay suficientes partes (día, mes, año)
+    if (parts.length !== 3) {
+        return null;
+    }
+
+    // Convertir las partes a números enteros
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const year = parseInt(parts[2], 10);
+
+    // Crear un objeto de fecha
+    const date = new Date(year, month - 1, day);
+
+    // Verificar si la fecha es válida
+    if (isNaN(date.getTime())) {
+        return null;
+    }
+
+    // Formatear la fecha como desees
+    const formattedDate = date.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+    return formattedDate;
 }
 
 const reportsCancelledAppointments = async (req, res) => {

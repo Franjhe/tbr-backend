@@ -86,7 +86,61 @@ const reportsCollection = async (reportsCollection) => {
                     .input('fhasta', sql.Date, reportsCollection.fhasta)
                     .input('cvendedor', sql.Int, reportsCollection.cvendedor)
                     .input('bactivo', sql.Bit, true)
-                    .query('SELECT * FROM vwReport WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1 AND cvendedor = @cvendedor');
+                    .query(`
+                    WITH RankedResults AS (
+                      SELECT 
+                      fcontrato, 
+                      fcobro,
+                      npaquete, 
+                      xnombre, 
+                      csucursal, 
+                      xsucursal, 
+                      mpaquete_cont, 
+                      mcuota, 
+                      ccuota,
+                      cvendedor, 
+                      xvendedor, 
+                      bactivo,
+                      mpago, 
+                      ncliente,
+                      
+                      xmodalidad_pago,
+                      xtipo_tarjeta,
+                      xpos,
+                        ROW_NUMBER() OVER (PARTITION BY npaquete, ccuota ORDER BY (SELECT NULL)) AS RowNum 
+                      FROM vwReport
+                      WHERE 
+                        fcontrato >= @fdesde
+                        AND fcontrato <= @fhasta
+                        AND csucursal = @csucursal
+                        AND cvendedor = @cvendedor
+                        AND bactivo = 1
+                        AND bpago = 1
+                    )
+                    SELECT 
+                    fcontrato, 
+                    fcobro,
+                    npaquete, 
+                    xnombre, 
+                    csucursal, 
+                    xsucursal, 
+                    mpaquete_cont, 
+                    mcuota, 
+                    ccuota,
+                    cvendedor, 
+                    xvendedor, 
+                    mpago,  
+                    ncliente,
+                    
+                    xmodalidad_pago,
+                    xtipo_tarjeta,
+                    xpos,
+                    bactivo
+                    FROM 
+                      RankedResults 
+                    WHERE 
+                      RowNum = 1 
+                    ORDER BY npaquete`);
                     results.push(result.recordset);
                 }
             }else{
@@ -97,7 +151,60 @@ const reportsCollection = async (reportsCollection) => {
                 .input('fhasta', sql.Date, reportsCollection.fhasta)
                 .input('cvendedor', sql.Int, reportsCollection.cvendedor)
                 .input('bactivo', sql.Bit, true)
-                .query('SELECT * FROM vwReport WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1 AND cvendedor = @cvendedor');
+                .query( `WITH RankedResults AS (
+                  SELECT 
+                    fcontrato, 
+                    fcobro,
+                    npaquete, 
+                    xnombre, 
+                    csucursal, 
+                    xsucursal, 
+                    mpaquete_cont, 
+                    mcuota, 
+                    ccuota,
+                    cvendedor, 
+                    xvendedor, 
+                    bactivo,
+                    mpago, 
+                    ncliente,
+                    
+                    xmodalidad_pago,
+                    xtipo_tarjeta,
+                    xpos,
+                    ROW_NUMBER() OVER (PARTITION BY npaquete, ccuota ORDER BY (SELECT NULL)) AS RowNum 
+                  FROM vwReport
+                  WHERE 
+                    fcontrato >= @fdesde
+                    AND fcontrato <= @fhasta
+                    AND csucursal = @csucursal
+                    AND cvendedor = @cvendedor
+                    AND bactivo = 1
+                    AND bpago = 1
+                )
+                SELECT 
+                  fcontrato, 
+                  fcobro,
+                  npaquete, 
+                  xnombre, 
+                  csucursal, 
+                  xsucursal, 
+                  mpaquete_cont, 
+                  mcuota, 
+                  ccuota,
+                  cvendedor, 
+                  xvendedor, 
+                  mpago,  
+                  ncliente,
+                  
+                  xmodalidad_pago,
+                  xtipo_tarjeta,
+                  xpos,
+                  bactivo
+                FROM 
+                  RankedResults 
+                WHERE 
+                  RowNum = 1 
+                ORDER BY npaquete`);
                 results.push(result.recordset);  
             }
 
@@ -109,7 +216,59 @@ const reportsCollection = async (reportsCollection) => {
                 .input('fdesde', sql.Date, reportsCollection.fdesde)
                 .input('fhasta', sql.Date, reportsCollection.fhasta)
                 .input('bactivo', sql.Bit, true)
-                .query('SELECT * FROM vwReport WHERE bactivo = @bactivo AND csucursal = @csucursal AND fcobro >= @fdesde AND fcobro <= @fhasta AND bpago = 1');
+                .query(`                    WITH RankedResults AS (
+                  SELECT 
+                  fcontrato, 
+                  fcobro,
+                  npaquete, 
+                  xnombre, 
+                  csucursal, 
+                  xsucursal, 
+                  mpaquete_cont, 
+                  mcuota, 
+                  ccuota,
+                  cvendedor, 
+                  xvendedor, 
+                  bactivo,
+                  mpago, 
+                  ncliente,
+                 
+                  xmodalidad_pago,
+                  xtipo_tarjeta,
+                  xpos,
+                    ROW_NUMBER() OVER (PARTITION BY npaquete, ccuota ORDER BY (SELECT NULL)) AS RowNum 
+                  FROM vwReport
+                  WHERE 
+                    fcontrato >= @fdesde
+                    AND fcontrato <= @fhasta
+                    AND csucursal = @csucursal
+                    AND bactivo = 1
+                    AND bpago = 1
+                )
+                SELECT 
+                fcontrato, 
+                fcobro,
+                npaquete, 
+                xnombre, 
+                csucursal, 
+                xsucursal, 
+                mpaquete_cont, 
+                mcuota, 
+                ccuota,
+                cvendedor, 
+                xvendedor, 
+                mpago,  
+                ncliente,
+                
+                xmodalidad_pago,
+                xtipo_tarjeta,
+                xpos,
+                bactivo
+                FROM 
+                  RankedResults 
+                WHERE 
+                  RowNum = 1 
+                ORDER BY npaquete`);
                 results.push(result.recordset);
             }
         }
