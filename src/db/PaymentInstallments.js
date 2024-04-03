@@ -13,15 +13,31 @@ const sqlConfig = {
     }
 }
 
+const ajustarFechaCobro = (fechaAnticipo, horaActual) => {
+    // Clonar la fecha de anticipo para evitar modificar el objeto original
+    let fechaCobro = new Date(fechaAnticipo);
+    console.log(horaActual)
+    // Si la hora actual es igual o mayor a las 7 PM (19 horas), y la fecha de anticipo es antes de hoy, ajusta la fecha de cobro al día siguiente
+    if (horaActual >= 19) {
+        fechaCobro.setDate(fechaCobro.getDate());
+    }else{
+        fechaCobro.setDate(fechaCobro.getDate());
+    }
+    console.log(fechaCobro)
+    return fechaCobro;
+};
+
 const createNewPaymentInstallments = async (receiptId, paymentInstallmentsData) => {
     try {
+        let horaActual = new Date().getHours();
+        let fechaCobro = ajustarFechaCobro(paymentInstallmentsData.fanticipo, horaActual);
         //Se genera la cuota número 1 para el anticipo.
         let pool = await sql.connect(sqlConfig);
         let advanceInsert = await pool.request()
             .input('npaquete', sql.NVarChar, paymentInstallmentsData.npaquete)
             .input('ccuota', sql.Int, 1)
             .input('fpago', sql.Date, paymentInstallmentsData.fanticipo)
-            .input('fcobro', sql.Date, paymentInstallmentsData.fanticipo)
+            .input('fcobro', sql.Date, fechaCobro)
             .input('ipago', sql.NVarChar, 'A')
             .input('bpago', sql.Bit, true)
             .input('bactivo', sql.Bit, true)

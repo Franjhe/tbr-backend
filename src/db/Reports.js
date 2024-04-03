@@ -103,15 +103,15 @@ const reportsCollection = async (reportsCollection) => {
                       bactivo,
                       mpago, 
                       ncliente,
-                      
+                      mpagado,
                       xmodalidad_pago,
                       xtipo_tarjeta,
                       xpos,
-                        ROW_NUMBER() OVER (PARTITION BY npaquete, ccuota ORDER BY (SELECT NULL)) AS RowNum 
+                        ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
                       FROM vwReport
                       WHERE 
-                        fcontrato >= @fdesde
-                        AND fcontrato <= @fhasta
+                        fcobro >= @fdesde
+                        AND fcobro <= @fhasta
                         AND csucursal = @csucursal
                         AND cvendedor = @cvendedor
                         AND bactivo = 1
@@ -131,7 +131,7 @@ const reportsCollection = async (reportsCollection) => {
                     xvendedor, 
                     mpago,  
                     ncliente,
-                    
+                    mpagado,
                     xmodalidad_pago,
                     xtipo_tarjeta,
                     xpos,
@@ -151,37 +151,8 @@ const reportsCollection = async (reportsCollection) => {
                 .input('fhasta', sql.Date, reportsCollection.fhasta)
                 .input('cvendedor', sql.Int, reportsCollection.cvendedor)
                 .input('bactivo', sql.Bit, true)
-                .query( `WITH RankedResults AS (
+                .query( `                    WITH RankedResults AS (
                   SELECT 
-                    fcontrato, 
-                    fcobro,
-                    npaquete, 
-                    xnombre, 
-                    csucursal, 
-                    xsucursal, 
-                    mpaquete_cont, 
-                    mcuota, 
-                    ccuota,
-                    cvendedor, 
-                    xvendedor, 
-                    bactivo,
-                    mpago, 
-                    ncliente,
-                    
-                    xmodalidad_pago,
-                    xtipo_tarjeta,
-                    xpos,
-                    ROW_NUMBER() OVER (PARTITION BY npaquete, ccuota ORDER BY (SELECT NULL)) AS RowNum 
-                  FROM vwReport
-                  WHERE 
-                    fcontrato >= @fdesde
-                    AND fcontrato <= @fhasta
-                    AND csucursal = @csucursal
-                    AND cvendedor = @cvendedor
-                    AND bactivo = 1
-                    AND bpago = 1
-                )
-                SELECT 
                   fcontrato, 
                   fcobro,
                   npaquete, 
@@ -193,13 +164,42 @@ const reportsCollection = async (reportsCollection) => {
                   ccuota,
                   cvendedor, 
                   xvendedor, 
-                  mpago,  
+                  bactivo,
+                  mpago, 
                   ncliente,
-                  
+                  mpagado,
                   xmodalidad_pago,
                   xtipo_tarjeta,
                   xpos,
-                  bactivo
+                    ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
+                  FROM vwReport
+                  WHERE 
+                    fcobro >= @fdesde
+                    AND fcobro <= @fhasta
+                    AND csucursal = @csucursal
+                    AND cvendedor = @cvendedor
+                    AND bactivo = 1
+                    AND bpago = 1
+                )
+                SELECT 
+                fcontrato, 
+                fcobro,
+                npaquete, 
+                xnombre, 
+                csucursal, 
+                xsucursal, 
+                mpaquete_cont, 
+                mcuota, 
+                ccuota,
+                cvendedor, 
+                xvendedor, 
+                mpago,  
+                ncliente,
+                mpagado,
+                xmodalidad_pago,
+                xtipo_tarjeta,
+                xpos,
+                bactivo
                 FROM 
                   RankedResults 
                 WHERE 
@@ -232,15 +232,15 @@ const reportsCollection = async (reportsCollection) => {
                   bactivo,
                   mpago, 
                   ncliente,
-                 
+                  mpagado,
                   xmodalidad_pago,
                   xtipo_tarjeta,
                   xpos,
-                    ROW_NUMBER() OVER (PARTITION BY npaquete, ccuota ORDER BY (SELECT NULL)) AS RowNum 
+                    ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
                   FROM vwReport
                   WHERE 
-                    fcontrato >= @fdesde
-                    AND fcontrato <= @fhasta
+                    fcobro >= @fdesde
+                    AND fcobro <= @fhasta
                     AND csucursal = @csucursal
                     AND bactivo = 1
                     AND bpago = 1
@@ -259,7 +259,7 @@ const reportsCollection = async (reportsCollection) => {
                 xvendedor, 
                 mpago,  
                 ncliente,
-                
+                mpagado,
                 xmodalidad_pago,
                 xtipo_tarjeta,
                 xpos,

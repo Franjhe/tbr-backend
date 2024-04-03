@@ -12,14 +12,31 @@ const sqlConfig = {
     }
 }
 
+const ajustarFechaCobro = (fechaAnticipo, horaActual) => {
+    // Clonar la fecha de anticipo para evitar modificar el objeto original
+    let fechaCobro = new Date(fechaAnticipo);
+    
+    // Si la hora actual es igual o mayor a las 7 PM (19 horas), y la fecha de anticipo es antes de hoy, ajusta la fecha de cobro al día siguiente
+    if (horaActual >= 19 && fechaCobro < new Date()) {
+        fechaCobro.setDate(fechaCobro.getDate());
+    }else{
+        fechaCobro.setDate(fechaCobro.getDate());
+    }
+    
+    return fechaCobro;
+};
+
 const createNewReceipt = async (userId, clientId, packageId, paymentInstallmentsData) => {
     try {
+        let horaActual = new Date().getHours();
+        let fechaCobro = ajustarFechaCobro(paymentInstallmentsData.fanticipo, horaActual);
+
         let pool = await sql.connect(sqlConfig);
         let result = await pool.request()
             .input('npaquete', sql.NVarChar, packageId)
             .input('ncliente', sql.Int, clientId)
             .input('cvendedor', sql.Int, userId)
-            .input('fcobro', sql.Date, paymentInstallmentsData.fanticipo)
+            .input('fcobro', sql.Date, fechaCobro)
             .input('mtotal', sql.Numeric(11,2), paymentInstallmentsData.manticipo)
             .input('xconceptopago', sql.NVarChar, paymentInstallmentsData.xconceptopago)
             .input('bactivo', sql.Bit, true)

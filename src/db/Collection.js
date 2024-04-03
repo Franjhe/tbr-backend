@@ -12,6 +12,20 @@ const sqlConfig = {
     }
 }
 
+const ajustarFechaCobro = (fechaAnticipo, horaActual) => {
+    // Clonar la fecha de anticipo para evitar modificar el objeto original
+    let fechaCobro = new Date(fechaAnticipo);
+    
+    // Si la hora actual es igual o mayor a las 7 PM (19 horas), y la fecha de anticipo es antes de hoy, ajusta la fecha de cobro al día siguiente
+    if (horaActual >= 19 && fechaCobro < new Date()) {
+        fechaCobro.setDate(fechaCobro.getDate());
+    }else{
+        fechaCobro.setDate(fechaCobro.getDate());
+    }
+    
+    return fechaCobro;
+};
+
 const getAllClientDebtCollections = async (clientId) => {
     try {
         let pool = await sql.connect(sqlConfig);
@@ -142,7 +156,11 @@ const getAllClientPaidBillings = async (clientId) => {
 }
 
 const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, paymentDistribution, paymentDate) => {
+    console.log(paymentDate)
     try {
+        let horaActual = new Date().getHours();
+        let fechaCobro = ajustarFechaCobro(paymentDate, horaActual);
+
         let pool = await sql.connect(sqlConfig);
         let resultPaymentDistribution = [];
         //Inserta la distribucion de pago.
@@ -168,7 +186,7 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
                 .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
                 .input('ncliente', sql.Int, clientId)
                 .input('mtotal', sql.Numeric(11,2), paidPaymentInstallments[i].mtotalrecibo)
-                .input('fcobro', sql.Date, paymentDate)
+                .input('fcobro', sql.Date, fechaCobro)
                 .input('xconceptopago', sql.NVarChar, paidPaymentInstallments[i].xconceptopago)
                 .input('cvendedor', sql.Int, userData.cusuario)
                 .input('bactivo', sql.Bit, true)
@@ -203,7 +221,7 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
                     await pool.request()
                     .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
                     .input('ccuota', sql.Int, paidPaymentInstallments[i].cuotas[j].ccuota)
-                    .input('fcobro', sql.Date, paymentDate)
+                    .input('fcobro', sql.Date, fechaCobro)
                     .input('mpagado', sql.Numeric(11,2), mountDet)
                     .query('update cbcuotas set fcobro = @fcobro , mpagado = @mpagado where npaquete = @npaquete and ccuota = @ccuota ')   
                 
@@ -213,7 +231,7 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
                     await pool.request()
                         .input('npaquete', sql.NVarChar, paidPaymentInstallments[i].npaquete)
                         .input('ccuota', sql.Int, paidPaymentInstallments[i].cuotas[j].ccuota)
-                        .input('fcobro', sql.Date, paymentDate)
+                        .input('fcobro', sql.Date, fechaCobro)
                         .input('bpago', sql.Bit, paidPaymentInstallments[i].cuotas[j].bpago)
                         .query('update cbcuotas set fcobro = @fcobro, bpago = @bpago where npaquete = @npaquete and ccuota = @ccuota')
                 }
@@ -230,7 +248,10 @@ const payOneClientDebts = async (userData, clientId, paidPaymentInstallments, pa
 }
 
 const payOneFeesClientDebts = async (userData, paidInstallments, paymentData ) => {
+    console.log(paymentData)
     try {
+        let horaActual = new Date().getHours();
+        let fechaCobro = ajustarFechaCobro(paymentData.fpago, horaActual);
         let pool = await sql.connect(sqlConfig);
         let resultPaymentDistribution = [];
         //Inserta la distribucion de pago.
@@ -257,7 +278,7 @@ const payOneFeesClientDebts = async (userData, paidInstallments, paymentData ) =
                 .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
                 .input('ncliente', sql.Int, paymentData.ncliente)
                 .input('mtotal', sql.Numeric(11,2), paidInstallments[i].mtotalrecibo)
-                .input('fcobro', sql.Date, paymentData.fpago)
+                .input('fcobro', sql.Date, fechaCobro)
                 .input('xconceptopago', sql.NVarChar, paidInstallments[i].xconceptopago)
                 .input('cvendedor', sql.Int, userData.cusuario)
                 .input('bactivo', sql.Bit, true)
@@ -292,7 +313,7 @@ const payOneFeesClientDebts = async (userData, paidInstallments, paymentData ) =
                 await pool.request()
                 .input('npaquete', sql.NVarChar, paidInstallments[i].npaquete)
                 .input('ccuota', sql.Int, paidInstallments[i].ccuota)
-                .input('fcobro', sql.Date, paymentData.fpago)
+                .input('fcobro', sql.Date, fechaCobro)
                 .input('bpago', sql.Bit, paidInstallments[i].bpago)
                 .input('mpagado', sql.Numeric(11,2), mountDet)
                 .query('update cbcuotas set fcobro = @fcobro, bpago = @bpago  , mpagado = @mpagado where npaquete = @npaquete and ccuota = @ccuota ')   
