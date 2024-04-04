@@ -187,7 +187,7 @@ const createNewCourtesySession = async (userData, packageId, courtesySession) =>
             errorNotFound: 'No existe un cliente con el id suministrado, verifique la información.'
         }
     }
-    if (contract.ipaquete_tipo === 'U' && contract.ncliente != courtesySession.ncliente) {
+    if (contract.value.ipaquete_tipo === 'U' && contract.value.ncliente != courtesySession.ncliente) {
         return {
             errorBadRequest: 'No se puede agregar un tratamiento a un cliente distinto al cliente principal en un contrato que es de tipo único.'
         }
@@ -218,7 +218,7 @@ const createNewCourtesySession = async (userData, packageId, courtesySession) =>
         }
     }
     else {
-        const newCourtesySession = await Contract.createNewCourtesySession(packageId, contract.ncontrato, courtesySession);
+        const newCourtesySession = await Contract.createNewCourtesySession(packageId, contract.value.ncontrato, courtesySession);
         if (newCourtesySession.error) {
             return {
                 error: newCourtesySession.error
