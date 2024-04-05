@@ -70,216 +70,272 @@ const sqlConfig = {
 //     }
 // }
 
-const reportsCollection = async (reportsCollection) => {
-    try {
-        let pool = await sql.connect(sqlConfig);
-        let results = [];
+// const reportsCollection = async (reportsCollection) => {
+//     try {
+//         let pool = await sql.connect(sqlConfig);
+//         let results = [];
 
-        if(reportsCollection.cvendedor){
-            if(reportsCollection.csucursal.length > 0){
-                for (let i = 0; i < reportsCollection.csucursal.length; i++) {
-                    const sucursal= reportsCollection.csucursal[i]
+//         if(reportsCollection.cvendedor){
+//             if(reportsCollection.csucursal.length > 0){
+//                 for (let i = 0; i < reportsCollection.csucursal.length; i++) {
+//                     const sucursal= reportsCollection.csucursal[i]
                     
-                    let result = await pool.request()
-                    .input('csucursal', sql.Int, sucursal)
-                    .input('fdesde', sql.Date, reportsCollection.fdesde)
-                    .input('fhasta', sql.Date, reportsCollection.fhasta)
-                    .input('cvendedor', sql.Int, reportsCollection.cvendedor)
-                    .input('bactivo', sql.Bit, true)
-                    .query(`
-                    WITH RankedResults AS (
-                      SELECT 
-                      fcontrato, 
-                      fcobro,
-                      npaquete, 
-                      xnombre, 
-                      csucursal, 
-                      xsucursal, 
-                      mpaquete_cont, 
-                      mcuota, 
-                      ccuota,
-                      cvendedor, 
-                      xvendedor, 
-                      bactivo,
-                      mpago, 
-                      ncliente,
-                      mpagado,
-                      xmodalidad_pago,
-                      xtipo_tarjeta,
-                      xpos,
-                        ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
-                      FROM vwReport
-                      WHERE 
-                        fcobro >= @fdesde
-                        AND fcobro <= @fhasta
-                        AND csucursal = @csucursal
-                        AND cvendedor = @cvendedor
-                        AND bactivo = 1
-                        AND bpago = 1
-                    )
-                    SELECT 
-                    fcontrato, 
-                    fcobro,
-                    npaquete, 
-                    xnombre, 
-                    csucursal, 
-                    xsucursal, 
-                    mpaquete_cont, 
-                    mcuota, 
-                    ccuota,
-                    cvendedor, 
-                    xvendedor, 
-                    mpago,  
-                    ncliente,
-                    mpagado,
-                    xmodalidad_pago,
-                    xtipo_tarjeta,
-                    xpos,
-                    bactivo
-                    FROM 
-                      RankedResults 
-                    WHERE 
-                      RowNum = 1 
-                    ORDER BY npaquete`);
-                    results.push(result.recordset);
-                }
-            }else{
-                console.log(reportsCollection)
-                let result = await pool.request()
-                .input('csucursal', sql.Int, reportsCollection.csucursal)
-                .input('fdesde', sql.Date, reportsCollection.fdesde)
-                .input('fhasta', sql.Date, reportsCollection.fhasta)
-                .input('cvendedor', sql.Int, reportsCollection.cvendedor)
-                .input('bactivo', sql.Bit, true)
-                .query( `                    WITH RankedResults AS (
-                  SELECT 
-                  fcontrato, 
-                  fcobro,
-                  npaquete, 
-                  xnombre, 
-                  csucursal, 
-                  xsucursal, 
-                  mpaquete_cont, 
-                  mcuota, 
-                  ccuota,
-                  cvendedor, 
-                  xvendedor, 
-                  bactivo,
-                  mpago, 
-                  ncliente,
-                  mpagado,
-                  xmodalidad_pago,
-                  xtipo_tarjeta,
-                  xpos,
-                    ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
-                  FROM vwReport
-                  WHERE 
-                    fcobro >= @fdesde
-                    AND fcobro <= @fhasta
-                    AND csucursal = @csucursal
-                    AND cvendedor = @cvendedor
-                    AND bactivo = 1
-                    AND bpago = 1
-                )
-                SELECT 
-                fcontrato, 
-                fcobro,
-                npaquete, 
-                xnombre, 
-                csucursal, 
-                xsucursal, 
-                mpaquete_cont, 
-                mcuota, 
-                ccuota,
-                cvendedor, 
-                xvendedor, 
-                mpago,  
-                ncliente,
-                mpagado,
-                xmodalidad_pago,
-                xtipo_tarjeta,
-                xpos,
-                bactivo
-                FROM 
-                  RankedResults 
-                WHERE 
-                  RowNum = 1 
-                ORDER BY npaquete`);
-                results.push(result.recordset);  
-            }
+//                     let result = await pool.request()
+//                     .input('csucursal', sql.Int, sucursal)
+//                     .input('fdesde', sql.Date, reportsCollection.fdesde)
+//                     .input('fhasta', sql.Date, reportsCollection.fhasta)
+//                     .input('cvendedor', sql.Int, reportsCollection.cvendedor)
+//                     .input('bactivo', sql.Bit, true)
+//                     .query(`
+//                     WITH RankedResults AS (
+//                       SELECT 
+//                       fcontrato, 
+//                       fcobro,
+//                       npaquete, 
+//                       xnombre, 
+//                       csucursal, 
+//                       xsucursal, 
+//                       mpaquete_cont, 
+//                       mcuota, 
+//                       ccuota,
+//                       cvendedor, 
+//                       xvendedor, 
+//                       bactivo,
+//                       mpago, 
+//                       ncliente,
+//                       mpagado,
+//                       xmodalidad_pago,
+//                       xtipo_tarjeta,
+//                       xpos,
+//                         ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
+//                       FROM vwReport
+//                       WHERE 
+//                         fcobro >= @fdesde
+//                         AND fcobro <= @fhasta
+//                         AND csucursal = @csucursal
+//                         AND cvendedor = @cvendedor
+//                         AND bactivo = 1
+//                         AND bpago = 1
+//                     )
+//                     SELECT 
+//                     fcontrato, 
+//                     fcobro,
+//                     npaquete, 
+//                     xnombre, 
+//                     csucursal, 
+//                     xsucursal, 
+//                     mpaquete_cont, 
+//                     mcuota, 
+//                     ccuota,
+//                     cvendedor, 
+//                     xvendedor, 
+//                     mpago,  
+//                     ncliente,
+//                     mpagado,
+//                     xmodalidad_pago,
+//                     xtipo_tarjeta,
+//                     xpos,
+//                     bactivo
+//                     FROM 
+//                       RankedResults 
+//                     WHERE 
+//                       RowNum = 1 
+//                     ORDER BY npaquete`);
+//                     results.push(result.recordset);
+//                 }
+//             }else{
+//                 console.log(reportsCollection)
+//                 let result = await pool.request()
+//                 .input('csucursal', sql.Int, reportsCollection.csucursal)
+//                 .input('fdesde', sql.Date, reportsCollection.fdesde)
+//                 .input('fhasta', sql.Date, reportsCollection.fhasta)
+//                 .input('cvendedor', sql.Int, reportsCollection.cvendedor)
+//                 .input('bactivo', sql.Bit, true)
+//                 .query( `                    WITH RankedResults AS (
+//                   SELECT 
+//                   fcontrato, 
+//                   fcobro,
+//                   npaquete, 
+//                   xnombre, 
+//                   csucursal, 
+//                   xsucursal, 
+//                   mpaquete_cont, 
+//                   mcuota, 
+//                   ccuota,
+//                   cvendedor, 
+//                   xvendedor, 
+//                   bactivo,
+//                   mpago, 
+//                   ncliente,
+//                   mpagado,
+//                   xmodalidad_pago,
+//                   xtipo_tarjeta,
+//                   xpos,
+//                     ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
+//                   FROM vwReport
+//                   WHERE 
+//                     fcobro >= @fdesde
+//                     AND fcobro <= @fhasta
+//                     AND csucursal = @csucursal
+//                     AND cvendedor = @cvendedor
+//                     AND bactivo = 1
+//                     AND bpago = 1
+//                 )
+//                 SELECT 
+//                 fcontrato, 
+//                 fcobro,
+//                 npaquete, 
+//                 xnombre, 
+//                 csucursal, 
+//                 xsucursal, 
+//                 mpaquete_cont, 
+//                 mcuota, 
+//                 ccuota,
+//                 cvendedor, 
+//                 xvendedor, 
+//                 mpago,  
+//                 ncliente,
+//                 mpagado,
+//                 xmodalidad_pago,
+//                 xtipo_tarjeta,
+//                 xpos,
+//                 bactivo
+//                 FROM 
+//                   RankedResults 
+//                 WHERE 
+//                   RowNum = 1 
+//                 ORDER BY npaquete`);
+//                 results.push(result.recordset);  
+//             }
 
-        }else{
-            for (let i = 0; i < reportsCollection.csucursal.length; i++) {
-                const sucursal= reportsCollection.csucursal[i]
-                let result = await pool.request()
-                .input('csucursal', sql.Int, sucursal)
-                .input('fdesde', sql.Date, reportsCollection.fdesde)
-                .input('fhasta', sql.Date, reportsCollection.fhasta)
-                .input('bactivo', sql.Bit, true)
-                .query(`                    WITH RankedResults AS (
-                  SELECT 
-                  fcontrato, 
-                  fcobro,
-                  npaquete, 
-                  xnombre, 
-                  csucursal, 
-                  xsucursal, 
-                  mpaquete_cont, 
-                  mcuota, 
-                  ccuota,
-                  cvendedor, 
-                  xvendedor, 
-                  bactivo,
-                  mpago, 
-                  ncliente,
-                  mpagado,
-                  xmodalidad_pago,
-                  xtipo_tarjeta,
-                  xpos,
-                    ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
-                  FROM vwReport
-                  WHERE 
-                    fcobro >= @fdesde
-                    AND fcobro <= @fhasta
-                    AND csucursal = @csucursal
-                    AND bactivo = 1
-                    AND bpago = 1
-                )
-                SELECT 
-                fcontrato, 
-                fcobro,
-                npaquete, 
-                xnombre, 
-                csucursal, 
-                xsucursal, 
-                mpaquete_cont, 
-                mcuota, 
-                ccuota,
-                cvendedor, 
-                xvendedor, 
-                mpago,  
-                ncliente,
-                mpagado,
-                xmodalidad_pago,
-                xtipo_tarjeta,
-                xpos,
-                bactivo
-                FROM 
-                  RankedResults 
-                WHERE 
-                  RowNum = 1 
-                ORDER BY npaquete`);
-                results.push(result.recordset);
-            }
-        }
+//         }else{
+//             for (let i = 0; i < reportsCollection.csucursal.length; i++) {
+//                 const sucursal= reportsCollection.csucursal[i]
+//                 let result = await pool.request()
+//                 .input('csucursal', sql.Int, sucursal)
+//                 .input('fdesde', sql.Date, reportsCollection.fdesde)
+//                 .input('fhasta', sql.Date, reportsCollection.fhasta)
+//                 .input('bactivo', sql.Bit, true)
+//                 .query(`                    WITH RankedResults AS (
+//                   SELECT 
+//                   fcontrato, 
+//                   fcobro,
+//                   npaquete, 
+//                   xnombre, 
+//                   csucursal, 
+//                   xsucursal, 
+//                   mpaquete_cont, 
+//                   mcuota, 
+//                   ccuota,
+//                   cvendedor, 
+//                   xvendedor, 
+//                   bactivo,
+//                   mpago, 
+//                   ncliente,
+//                   mpagado,
+//                   xmodalidad_pago,
+//                   xtipo_tarjeta,
+//                   xpos,
+//                     ROW_NUMBER() OVER (PARTITION BY npaquete, xmodalidad_pago ORDER BY (SELECT NULL)) AS RowNum 
+//                   FROM vwReport
+//                   WHERE 
+//                     fcobro >= @fdesde
+//                     AND fcobro <= @fhasta
+//                     AND csucursal = @csucursal
+//                     AND bactivo = 1
+//                     AND bpago = 1
+//                 )
+//                 SELECT 
+//                 fcontrato, 
+//                 fcobro,
+//                 npaquete, 
+//                 xnombre, 
+//                 csucursal, 
+//                 xsucursal, 
+//                 mpaquete_cont, 
+//                 mcuota, 
+//                 ccuota,
+//                 cvendedor, 
+//                 xvendedor, 
+//                 mpago,  
+//                 ncliente,
+//                 mpagado,
+//                 xmodalidad_pago,
+//                 xtipo_tarjeta,
+//                 xpos,
+//                 bactivo
+//                 FROM 
+//                   RankedResults 
+//                 WHERE 
+//                   RowNum = 1 
+//                 ORDER BY npaquete`);
+//                 results.push(result.recordset);
+//             }
+//         }
 
-          return results;
-    } catch (error) {
-        console.log(error.message);
-        return {
-            error: error.message
-        }
-    }
+//           return results;
+//     } catch (error) {
+//         console.log(error.message);
+//         return {
+//             error: error.message
+//         }
+//     }
+// }
+
+const reportsCollection = async (reportsCollection) => {
+  try {
+      let pool = await sql.connect(sqlConfig);
+      let results = [];
+
+      if(reportsCollection.cvendedor){
+          if(reportsCollection.csucursal.length > 0){
+              for (let i = 0; i < reportsCollection.csucursal.length; i++) {
+                  const sucursal= reportsCollection.csucursal[i]
+                  
+                  let result = await pool.request()
+                  .input('csucursal', sql.Int, sucursal)
+                  .input('fdesde', sql.Date, reportsCollection.fdesde)
+                  .input('fhasta', sql.Date, reportsCollection.fhasta)
+                  .input('cvendedor', sql.Int, reportsCollection.cvendedor)
+                  .input('bactivo', sql.Bit, true)
+                  .query(`select * from vwReportCobranza where fcobro >= @fdesde and fcobro <= @fhasta
+                          and csucursal = @csucursal and cvendedor = @cvendedor and bactivo = @bactivo`);
+                  results.push(result.recordset);
+              }
+          }else{
+              console.log(reportsCollection)
+              let result = await pool.request()
+              .input('csucursal', sql.Int, reportsCollection.csucursal)
+              .input('fdesde', sql.Date, reportsCollection.fdesde)
+              .input('fhasta', sql.Date, reportsCollection.fhasta)
+              .input('cvendedor', sql.Int, reportsCollection.cvendedor)
+              .input('bactivo', sql.Bit, true)
+              .query(`select * from vwReportCobranza where fcobro >= @fdesde and fcobro <= @fhasta
+                      and csucursal = @csucursal and cvendedor = @cvendedor and bactivo = @bactivo`);
+              results.push(result.recordset);  
+          }
+
+      }else{
+          for (let i = 0; i < reportsCollection.csucursal.length; i++) {
+              const sucursal= reportsCollection.csucursal[i]
+              let result = await pool.request()
+              .input('csucursal', sql.Int, sucursal)
+              .input('fdesde', sql.Date, reportsCollection.fdesde)
+              .input('fhasta', sql.Date, reportsCollection.fhasta)
+              .input('bactivo', sql.Bit, true)
+              .query(`select * from vwReportCobranza where fcobro >= @fdesde and fcobro <= @fhasta
+                      and csucursal = @csucursal and bactivo = @bactivo`);
+              results.push(result.recordset);
+          }
+      }
+
+        return results;
+  } catch (error) {
+      console.log(error.message);
+      return {
+          error: error.message
+      }
+  }
 }
 
 const reportsSales = async (reportsSales) => {
