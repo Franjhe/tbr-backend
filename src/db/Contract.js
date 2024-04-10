@@ -254,17 +254,7 @@ const updateOneContract = async (userData, contractChanges, packageId) => {
                     )
             }
 
-            for (let i = 0; i < contractData.documentos.length; i++) {
-                let subresult = await pool.request()
-                    .input('npaquete', sql.NVarChar, contractData.npaquete)
-                    .input('xruta', sql.Bit, contractData.documentos[i].ruta)
-                    .input('ndocumento', sql.Numeric(18), i + 1)
-                    .input('fingreso', sql.DateTime, new Date())
-                    .query(
-                        'insert into pcdocumentos (npaquete, xruta, fingreso,ndocumento ) values (@npaquete, @xruta, @fingreso ,@ndocumento)'
-                    )
-            }
-            
+
         }
         return {
             npaquete: packageId
