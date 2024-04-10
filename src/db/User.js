@@ -113,7 +113,7 @@ const createNewUserTera = async (userData) => {
             .input('xterapeuta', sql.VarChar(250), userData.xnombre + ' ' + userData.xapellido)
             .input('bactivo', sql.Int, userData.cpais)
             .input('csucursal', sql.Int, userData.csucursal)
-            .input('fcreacion', sql.Int, new Date())
+            .input('fcreacion', sql.Date, new Date())
             .input('cusuariocreacion', sql.Int, userData.nemp)
             .query('insert into materapeutas'+
             '(cterapeuta, xterapeuta, bactivo, csucursal ,fcreacion, cusuariocreacion) '+
