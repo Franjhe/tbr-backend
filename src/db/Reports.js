@@ -15,6 +15,7 @@ const sqlConfig = {
     SELECT			
         cuota.npaquete, cuota.ccuota, cuota.mcuota, cuota.bpago, cuota.bactivo, cuota.ipago,cuota.fpago,
         relPagoRec.crecibo,relPagoRec.mmonto_cuota AS mpagado,
+        (contrato.mpaquete_cont - cuota.mcuota) AS mpendiente, 
         relRec.crecibo,
         pago_detalle.mpago,
         tarjeta.xtipo_tarjeta,punto_v.xpos,punto_v.cpos,modalidad.cmodalidad_pago,modalidad.xmodalidad_pago,
