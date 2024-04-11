@@ -284,6 +284,34 @@ const sqlConfig = {
 
 const reportsCollection = async (reportsCollection) => {
   try {
+
+    let query = `
+    SELECT			
+        cuota.npaquete, cuota.ccuota, cuota.mcuota, cuota.bpago, cuota.bactivo, cuota.ipago,cuota.fpago,
+				relPagoRec.crecibo,relPagoRec.mmonto_cuota AS mpagado,
+				relRec.crecibo,
+        pago_detalle.mpago,
+				tarjeta.xtipo_tarjeta,punto_v.xpos,punto_v.cpos,modalidad.cmodalidad_pago,modalidad.xmodalidad_pago,
+				contrato.mpaquete_cont, contrato.csucursal,contrato.fcontrato, contrato.ncliente, 
+				sucursal.xsucursal, 
+				recibo.fcobro
+
+      FROM            
+              dbo.cbcuotas as cuota INNER JOIN
+                         dbo.cbrecibos_det as relPagoRec ON cuota.npaquete = relPagoRec.npaquete AND cuota.ccuota = relPagoRec.ccuota INNER JOIN
+                         dbo.cbrecibos as recibo ON relPagoRec.crecibo = recibo.crecibo INNER JOIN
+                         dbo.pccontratos as contrato ON cuota.npaquete = contrato.npaquete INNER JOIN
+                         dbo.masucursales as sucursal ON contrato.csucursal = sucursal.csucursal INNER JOIN
+						 dbo.cbpagos_det as relRec ON relPagoRec.crecibo = relRec.crecibo INNER JOIN
+						 dbo.cbpagos as pago_detalle ON relRec.cpago = pago_detalle.cpago left outer JOIN
+						 dbo.mapos as punto_v ON pago_detalle.cpos = punto_v.cpos left outer JOIN
+						 dbo.matipo_tarjetas as tarjeta ON pago_detalle.ctipo_tarjeta = tarjeta.ctipo_tarjeta left outer JOIN
+						 dbo.mamodalidad_pago as modalidad ON pago_detalle.cmodalidad_pago = modalidad.cmodalidad_pago INNER JOIN
+						 dbo.mavendedores as vendedor ON contrato.cvendedor = vendedor.cvendedor
+
+						 where contrato.bactivo = 1 and
+    
+    `
       let pool = await sql.connect(sqlConfig);
       let results = [];
 
@@ -298,8 +326,8 @@ const reportsCollection = async (reportsCollection) => {
                   .input('fhasta', sql.Date, reportsCollection.fhasta)
                   .input('cvendedor', sql.Int, reportsCollection.cvendedor)
                   .input('bactivo', sql.Bit, true)
-                  .query(`select * from vwReportCobranza where fcobro >= @fdesde and fcobro <= @fhasta
-                          and csucursal = @csucursal and cvendedor = @cvendedor and bactivo = @bactivo`);
+                  .query( query + ` recibo.fcobro >= @fdesde and recibo.fcobro <= @fhasta
+                          and contrato.csucursal = @csucursal and recibo.cvendedor = @cvendedor `);
                   results.push(result.recordset);
               }
           }else{
@@ -310,8 +338,8 @@ const reportsCollection = async (reportsCollection) => {
               .input('fhasta', sql.Date, reportsCollection.fhasta)
               .input('cvendedor', sql.Int, reportsCollection.cvendedor)
               .input('bactivo', sql.Bit, true)
-              .query(`select * from vwReportCobranza where fcobro >= @fdesde and fcobro <= @fhasta
-                      and csucursal = @csucursal and cvendedor = @cvendedor and bactivo = @bactivo`);
+              .query(query + ` where recibo.fcobro >= @fdesde and recibo.fcobro <= @fhasta
+                      and contrato.csucursal = @csucursal and recibo.cvendedor = @cvendedor `);
               results.push(result.recordset);  
           }
 
@@ -323,8 +351,8 @@ const reportsCollection = async (reportsCollection) => {
               .input('fdesde', sql.Date, reportsCollection.fdesde)
               .input('fhasta', sql.Date, reportsCollection.fhasta)
               .input('bactivo', sql.Bit, true)
-              .query(`select * from vwReportCobranza where fcobro >= @fdesde and fcobro <= @fhasta
-                      and csucursal = @csucursal and bactivo = @bactivo`);
+              .query(query + ` recibo.fcobro >= @fdesde and recibo.fcobro <= @fhasta
+                      and contrato.csucursal = @csucursal `);
               results.push(result.recordset);
           }
       }
