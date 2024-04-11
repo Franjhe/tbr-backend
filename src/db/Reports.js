@@ -21,7 +21,7 @@ const sqlConfig = {
         contrato.mpaquete_cont, contrato.csucursal,contrato.fcontrato, contrato.ncliente, 
         sucursal.xsucursal, 
         recibo.fcobro,
-        vendedor.cvendedor,vendedor.xvendedor 
+        vendedor.cvendedor,vendedor.xvendedor ,cliente.xcliente
 
       FROM            
             dbo.cbcuotas as cuota INNER JOIN
