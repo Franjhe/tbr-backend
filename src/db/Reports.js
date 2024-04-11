@@ -39,6 +39,25 @@ const sqlConfig = {
             dbo.mavendedores as vendedor ON contrato.cvendedor = vendedor.cvendedor
             where contrato.bactivo = 1 and `
 
+
+    let sales =    ` SELECT			
+    cuota.npaquete, cuota.ccuota, cuota.mcuota, cuota.bpago, cuota.bactivo, cuota.ipago,cuota.fpago,cuota.mpagado,
+    (contrato.mpaquete_cont - cuota.mcuota) AS mpendiente, 
+    relPagoRec.crecibo,relPagoRec.mmonto_cuota AS mpagado,
+    contrato.mpaquete_cont, contrato.csucursal,contrato.fcontrato, contrato.ncliente, 
+    sucursal.xsucursal, 
+    recibo.fcobro,
+    vendedor.cvendedor,vendedor.xvendedor ,cliente.xnombre	
+  FROM            
+        dbo.cbcuotas as cuota INNER JOIN
+        dbo.cbrecibos_det as relPagoRec ON cuota.npaquete = relPagoRec.npaquete AND cuota.ccuota = relPagoRec.ccuota INNER JOIN
+        dbo.cbrecibos as recibo ON relPagoRec.crecibo = recibo.crecibo INNER JOIN
+        dbo.pccontratos as contrato ON cuota.npaquete = contrato.npaquete INNER JOIN
+        dbo.masucursales as sucursal ON contrato.csucursal = sucursal.csucursal INNER JOIN
+        dbo.maclientes as cliente ON contrato.ncliente = cliente.ncliente INNER JOIN
+        dbo.mavendedores as vendedor ON contrato.cvendedor = vendedor.cvendedor
+        where contrato.bactivo = 1     `
+
 const reportsCollection = async (reportsCollection) => {
   try {
 
@@ -112,7 +131,7 @@ const reportsSales = async (reportsSales) => {
                         .input('fhasta', sql.Date, reportsSales.fhasta)
                         .input('ipago', sql.Char, 'A')
                         .input('cvendedor', sql.Int, vendedor)
-                        .query(query +` cuota.ipago = 'A' 
+                        .query(sales +` cuota.ipago = 'A' 
                             AND contrato.fcontrato >= @fdesde 
                             AND contrato.fcontrato <= @fhasta
                             AND contrato.csucursal = @csucursal
@@ -132,7 +151,7 @@ const reportsSales = async (reportsSales) => {
                     .input('fhasta', sql.Date, reportsSales.fhasta)
                     .input('ipago', sql.Char, 'A')
                     .input('bactivo', sql.Bit, true)
-                    .query( query +`
+                    .query( sales +`
                         cuota.ipago = 'A' 
                         AND contrato.fcontrato >= @fdesde 
                         AND contrato.fcontrato <= @fhasta
@@ -150,7 +169,7 @@ const reportsSales = async (reportsSales) => {
                         .input('ipago', sql.Char, 'A')
                         .input('bactivo', sql.Bit, true)
                         .input('cvendedor', sql.Int, vendedor)
-                        .query(query + `
+                        .query(sales + `
                             cuota.ipago = 'A' 
                             AND contrato.fcontrato >= @fdesde 
                             AND contrato.fcontrato <= @fhasta
@@ -165,7 +184,7 @@ const reportsSales = async (reportsSales) => {
             .input('fhasta', sql.Date, reportsSales.fhasta)
             .input('ipago', sql.Char, 'A')
             .input('bactivo', sql.Bit, true)
-            .query(query +
+            .query(sales +
                 `cuota.ipago = 'A' 
                 AND contrato.fcontrato >= @fdesde 
                 AND contrato.fcontrato <= @fhasta
