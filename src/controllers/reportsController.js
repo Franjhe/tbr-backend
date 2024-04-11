@@ -2,17 +2,13 @@ import reportsService from '../services/reportsService.js';
 
 function formatDate(fecha) {
     // Obtener la fecha actual
-    const currentDate = new Date(fecha);
 
-    // Obtener el día, mes y año de la fecha actual
-    const day = currentDate.getDate();
-    const month = currentDate.getMonth() + 1; // Los meses en JavaScript van de 0 a 11
-    const year = currentDate.getFullYear();
+    let today = new Date(fecha); // Obtener la fecha actual
+    today.setDate(today.getDate()); // Ajustar la fecha para obtener el día actual
+    const formattedDate = today.toISOString().split('T')[0]; // Obtener solo la parte de la fecha sin la hora
 
-    // Formatear la fecha como 'dd-MM-yyyy'
-    const formattedString = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
 
-    return formattedString;
+    return formattedDate;
 }
 
 const reportsCollection = async (req, res) => {
