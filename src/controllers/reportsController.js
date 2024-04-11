@@ -1,8 +1,8 @@
 import reportsService from '../services/reportsService.js';
 
-function formatDate() {
+function formatDate(fecha) {
     // Obtener la fecha actual
-    const currentDate = new Date();
+    const currentDate = new Date(fecha);
 
     // Obtener el día, mes y año de la fecha actual
     const day = currentDate.getDate();
