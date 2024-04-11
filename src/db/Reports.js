@@ -20,7 +20,8 @@ const sqlConfig = {
         tarjeta.xtipo_tarjeta,punto_v.xpos,punto_v.cpos,modalidad.cmodalidad_pago,modalidad.xmodalidad_pago,
         contrato.mpaquete_cont, contrato.csucursal,contrato.fcontrato, contrato.ncliente, 
         sucursal.xsucursal, 
-        recibo.fcobro
+        recibo.fcobro,
+        vendedor.cvendedor,vendedor.xvendedor 
 
       FROM            
             dbo.cbcuotas as cuota INNER JOIN
