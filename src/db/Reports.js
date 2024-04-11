@@ -327,7 +327,7 @@ const reportsCollection = async (reportsCollection) => {
                   .input('cvendedor', sql.Int, reportsCollection.cvendedor)
                   .input('bactivo', sql.Bit, true)
                   .query( query + ` recibo.fcobro >= @fdesde and recibo.fcobro <= @fhasta
-                          and contrato.csucursal = @csucursal and recibo.cvendedor = @cvendedor `);
+                          and contrato.csucursal = @csucursal `);
                   results.push(result.recordset);
               }
           }else{
@@ -338,8 +338,8 @@ const reportsCollection = async (reportsCollection) => {
               .input('fhasta', sql.Date, reportsCollection.fhasta)
               .input('cvendedor', sql.Int, reportsCollection.cvendedor)
               .input('bactivo', sql.Bit, true)
-              .query(query + ` where recibo.fcobro >= @fdesde and recibo.fcobro <= @fhasta
-                      and contrato.csucursal = @csucursal and recibo.cvendedor = @cvendedor `);
+              .query(query + ` recibo.fcobro >= @fdesde and recibo.fcobro <= @fhasta
+                      and contrato.csucursal = @csucursal `);
               results.push(result.recordset);  
           }
 
