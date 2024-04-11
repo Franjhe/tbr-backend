@@ -40,15 +40,15 @@ const sqlConfig = {
             where contrato.bactivo = 1 and `
 
 
-    let sales =    ` SELECT			
-    cuota.npaquete, cuota.ccuota, cuota.mcuota, cuota.bpago, cuota.bactivo, cuota.ipago,cuota.fpago,cuota.mpagado,
-    (contrato.mpaquete_cont - cuota.mcuota) AS mpendiente, 
-    relPagoRec.crecibo,relPagoRec.mmonto_cuota AS mpagado,
-    contrato.mpaquete_cont, contrato.csucursal,contrato.fcontrato, contrato.ncliente, 
-    sucursal.xsucursal, 
-    recibo.fcobro,
-    vendedor.cvendedor,vendedor.xvendedor ,cliente.xnombre	
-  FROM            
+    let sales = ` SELECT			
+        cuota.npaquete, cuota.ccuota, cuota.mcuota, cuota.bpago, cuota.bactivo, cuota.ipago,cuota.fpago,cuota.mpagado,
+        (contrato.mpaquete_cont - cuota.mcuota) AS mpendiente, 
+        relPagoRec.crecibo,relPagoRec.mmonto_cuota AS mpagado,
+        contrato.mpaquete_cont, contrato.csucursal,contrato.fcontrato, contrato.ncliente, 
+        sucursal.xsucursal, 
+        recibo.fcobro,
+        vendedor.cvendedor,vendedor.xvendedor ,cliente.xnombre	
+    FROM            
         dbo.cbcuotas as cuota INNER JOIN
         dbo.cbrecibos_det as relPagoRec ON cuota.npaquete = relPagoRec.npaquete AND cuota.ccuota = relPagoRec.ccuota INNER JOIN
         dbo.cbrecibos as recibo ON relPagoRec.crecibo = recibo.crecibo INNER JOIN
@@ -56,7 +56,7 @@ const sqlConfig = {
         dbo.masucursales as sucursal ON contrato.csucursal = sucursal.csucursal INNER JOIN
         dbo.maclientes as cliente ON contrato.ncliente = cliente.ncliente INNER JOIN
         dbo.mavendedores as vendedor ON contrato.cvendedor = vendedor.cvendedor
-        where contrato.bactivo = 1     `
+        where contrato.bactivo = 1  and   `
 
 const reportsCollection = async (reportsCollection) => {
   try {
