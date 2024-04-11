@@ -34,6 +34,7 @@ const sqlConfig = {
             dbo.mapos as punto_v ON pago_detalle.cpos = punto_v.cpos left outer JOIN
             dbo.matipo_tarjetas as tarjeta ON pago_detalle.ctipo_tarjeta = tarjeta.ctipo_tarjeta left outer JOIN
             dbo.mamodalidad_pago as modalidad ON pago_detalle.cmodalidad_pago = modalidad.cmodalidad_pago INNER JOIN
+            dbo.maclientes as cliente ON contrato.ncliente = cliente.ncliente INNER JOIN
             dbo.mavendedores as vendedor ON contrato.cvendedor = vendedor.cvendedor
             where contrato.bactivo = 1 and `
 
