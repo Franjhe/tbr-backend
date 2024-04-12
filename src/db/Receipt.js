@@ -200,12 +200,17 @@ const getContractOutstandingBalance = async (packageId, receiptId) => {
             .input('crecibo', sql.Int, receiptId)
             .input('bpago', sql.Bit, false)
             .input('bactivo', sql.Bit, true)
-            .query(query + ' where contrato.npaquete = @npaquete and relPagoRec.crecibo <= @crecibo')
+            .query(query + ' contrato.npaquete = @npaquete and relPagoRec.crecibo <= @crecibo')
         let totalBalance = 0;
+        let paquete = 0;
+        let cuotas = 0;
         if (result.recordset.length > 0) {
             result.recordset.forEach(amount => {
-                totalBalance += (amount.mpaquete_cont - amount.mpagado)
+                paquete = amount.mpaquete_cont
+                cuotas += amount.mpagado
             })
+            totalBalance = paquete - cuotas
+
         }
         return totalBalance;
     }
