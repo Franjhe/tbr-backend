@@ -12,7 +12,7 @@ const getOneReceipt = async (userData, receiptId) => {
             error: receipt.error
         }
     }
-    const contractOutstandingBalance = await Receipt.getContractOutstandingBalance(receipt.npaquete);
+    const contractOutstandingBalance = await Receipt.getContractOutstandingBalance(receipt.npaquete,receiptId);
     if (contractOutstandingBalance.error) {
         return {
             error: contractOutstandingBalance.error

@@ -177,18 +177,34 @@ const getClientOutstandingBalance = async (clientId) => {
     }
 }
 
-const getContractOutstandingBalance = async (packageId) => {
+const getContractOutstandingBalance = async (packageId, receiptId) => {
     try {
+        let query = `
+        SELECT			
+            contrato.npaquete,contrato.mpaquete_cont,cuota.mcuota,cuota.mpagado, cuota.ccuota,
+            (contrato.mpaquete_cont - cuota.mpagado ) as mpendiente,
+            relPagoRec.crecibo
+        FROM            
+            dbo.cbcuotas as cuota INNER JOIN
+            dbo.cbrecibos_det as relPagoRec ON cuota.npaquete = relPagoRec.npaquete AND cuota.ccuota = relPagoRec.ccuota INNER JOIN
+            dbo.cbrecibos as recibo ON relPagoRec.crecibo = recibo.crecibo INNER JOIN
+            dbo.pccontratos as contrato ON cuota.npaquete = contrato.npaquete INNER JOIN
+            dbo.masucursales as sucursal ON contrato.csucursal = sucursal.csucursal INNER JOIN
+            dbo.maclientes as cliente ON contrato.ncliente = cliente.ncliente INNER JOIN
+            dbo.mavendedores as vendedor ON contrato.cvendedor = vendedor.cvendedor
+            where contrato.bactivo = 1 and
+        `
         let pool = await sql.connect(sqlConfig);
         let result = await pool.request()
             .input('npaquete', sql.NVarChar, packageId)
+            .input('crecibo', sql.Int, receiptId)
             .input('bpago', sql.Bit, false)
             .input('bactivo', sql.Bit, true)
-            .query('select mcuota, mpagado from vwbuscarpagospendientesxcontrato where npaquete = @npaquete and bpago = @bpago')
+            .query(query + ' where contrato.npaquete = @npaquete and relPagoRec.crecibo <= @crecibo')
         let totalBalance = 0;
         if (result.recordset.length > 0) {
             result.recordset.forEach(amount => {
-                totalBalance += (amount.mcuota - amount.mpagado)
+                totalBalance += (amount.mpaquete_cont - amount.mpagado)
             })
         }
         return totalBalance;
