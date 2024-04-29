@@ -24,7 +24,7 @@ const getAllClients = async (clientData) => {
             .input('bactivo', sql.Bit, true)
             .query(
                 `select ncliente, ncont_ant, xcliente, cid, csucursal `
-                + `from vwbuscarclientes where bactivocli = @bactivo  ${clientData.csucursal ? `and csucursal = @csucursal` : '' }  ${clientData.xnombre ? `and xcliente like '%${clientData.xnombre}%'` : ''} ${clientData.cid ? `and cid = @cid` : '' } `
+                + `from vwbuscarclientes where bactivocli = @bactivo AND bactivo = @bactivo ${clientData.csucursal ? `and csucursal = @csucursal` : '' }  ${clientData.xnombre ? `and xcliente like '%${clientData.xnombre}%'` : ''} ${clientData.cid ? `and cid = @cid` : '' } `
             );
         return result.recordset;
     }
