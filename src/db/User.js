@@ -275,6 +275,36 @@ const updateLoginUser = async (userData) => {
     }
 }
 
+const updateTherapists = async (updateTherapists) => {
+    try {
+        let pool = await sql.connect(sqlConfig);
+        
+        // Primer update
+        let result1 = await pool.request()
+            .input('csucursal', sql.Int, updateTherapists.csucursal_destino)
+            .input('cusuario', sql.Int, updateTherapists.cterapeuta)
+            .query('update seusuarios set csucursal = @csucursal where cusuario = @cusuario');
+
+        // Verificar si el primer update afectó alguna fila
+
+        if (result1.rowsAffected[0] > 0) {
+            console.log('eeeeea')
+            // Segundo update
+            let result2 = await pool.request()
+                .input('csucursal', sql.Int, updateTherapists.csucursal_destino)
+                .input('cterapeuta', sql.Int, updateTherapists.cterapeuta)
+                .query('update materapeutas set csucursal = @csucursal where cterapeuta = @cterapeuta');
+
+            return { result: result2 };
+        } else {
+            return { message: 'No se realizó ningún cambio en el primer update.' };
+        }
+    } catch (error) {
+        console.log(error.message);
+        return { error: error.message };
+    }
+};
+
 
 export default {
     verifyIfUsernameExists,
@@ -291,4 +321,5 @@ export default {
     getAllUser,
     searchSeller,
     updateLoginUser,
+    updateTherapists
 }

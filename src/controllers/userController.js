@@ -78,9 +78,30 @@ const updateUserLogin = async (req, res) => {
         });
 }
 
+const updateTherapists = async (req, res) => {
+    const createTher = await userService.updateTherapists(req.body);
+    if (createTher.error) {
+        return res
+            .status(500)
+            .send({
+                status: false,
+                message: createTher.error
+            });
+    }
+    return res
+        .status(200)
+        .send({
+            status: true,
+            data: {
+                message: 'Terapeuta creado con exito'
+            }
+        });
+}
+
 export default {
     createUser,
     updateUser,
     getAllUser,
-    updateUserLogin
+    updateUserLogin,
+    updateTherapists
 }

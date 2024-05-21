@@ -8,6 +8,7 @@ router
     .post("/update", userController.updateUser)
     .post("/update-login", userController.updateUserLogin)
     .get("/user", userController.getAllUser)
+    .post("/update/therapists", userController.updateTherapists)
 
 
 export default router;

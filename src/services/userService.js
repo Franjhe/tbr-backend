@@ -70,9 +70,22 @@ const updateLoginUser = async (data) => {
     return allUser;
 }
 
+const updateTherapists = async (data) => {
+    const createTher = await User.updateTherapists(data);
+
+    if (createTher.error) {
+        return {
+            error: createTher.error
+        }
+    }
+
+    return createTher;
+}
+
 export default {
     CreateUser,
     updateUser,
     getAllUser,
-    updateLoginUser
+    updateLoginUser,
+    updateTherapists
 }
