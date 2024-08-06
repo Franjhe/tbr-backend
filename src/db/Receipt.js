@@ -181,18 +181,15 @@ const getContractOutstandingBalance = async (packageId, receiptId) => {
     try {
         let query = `
         SELECT			
-            contrato.npaquete,contrato.mpaquete_cont,cuota.mcuota,cuota.mpagado, cuota.ccuota,
-            (contrato.mpaquete_cont - cuota.mpagado ) as mpendiente,
+            contrato.npaquete,contrato.mpaquete_cont,cuota.mcuota,cuota.mpagado, cuota.ccuota, relPagoRec.mmonto_cuota as total_recibo,
+            (contrato.mpaquete_cont - relPagoRec.mmonto_cuota ) as mpendiente,
             relPagoRec.crecibo
         FROM            
             dbo.cbcuotas as cuota INNER JOIN
             dbo.cbrecibos_det as relPagoRec ON cuota.npaquete = relPagoRec.npaquete AND cuota.ccuota = relPagoRec.ccuota INNER JOIN
             dbo.cbrecibos as recibo ON relPagoRec.crecibo = recibo.crecibo INNER JOIN
-            dbo.pccontratos as contrato ON cuota.npaquete = contrato.npaquete INNER JOIN
-            dbo.masucursales as sucursal ON contrato.csucursal = sucursal.csucursal INNER JOIN
-            dbo.maclientes as cliente ON contrato.ncliente = cliente.ncliente INNER JOIN
-            dbo.mavendedores as vendedor ON contrato.cvendedor = vendedor.cvendedor
-            where contrato.bactivo = 1 and
+            dbo.pccontratos as contrato ON cuota.npaquete = contrato.npaquete
+            where contrato.bactivo = 1 AND
         `
         let pool = await sql.connect(sqlConfig);
         let result = await pool.request()
@@ -207,7 +204,7 @@ const getContractOutstandingBalance = async (packageId, receiptId) => {
         if (result.recordset.length > 0) {
             result.recordset.forEach(amount => {
                 paquete = amount.mpaquete_cont
-                cuotas += amount.mpagado
+                cuotas += amount.total_recibo
             })
             totalBalance = paquete - cuotas
 
