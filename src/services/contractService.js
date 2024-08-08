@@ -75,6 +75,16 @@ const updateOneContract = async (userData, contractChanges, packageId) => {
     return updatedContract;
 }
 
+const deleteDocumentOneContract = async (id) => {
+    const deleteDocumentOneContracts = await Contract.deleteDocumentOneContract(id);
+    console.log(deleteDocumentOneContracts);
+    if (deleteDocumentOneContracts.error) {
+        return {
+            error: deleteDocumentOneContracts.error
+        }
+    }
+    return deleteDocumentOneContracts;
+}
 const uploadDocumentOneContract = async (userData, Documents, packageId) => {
     const uploadDocumentContract = await Contract.uploadDocumentOneContract(userData, Documents, packageId);
     if (uploadDocumentContract.error) {
@@ -264,6 +274,7 @@ export default {
     getAllContracts,
     getOneContract,
     updateOneContract,
+    deleteDocumentOneContract,
     uploadDocumentOneContract,
     updateOneContractTreatment,
     createNewCourtesySession,

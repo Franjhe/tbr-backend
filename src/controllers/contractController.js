@@ -127,6 +127,23 @@ const updateOneContract = async (req, res) => {
         });
 }
 
+const deleteDocumentOneContract = async (req, res) => {
+    const updatedContract = await contractService.deleteDocumentOneContract(req.params.id);
+    if (updatedContract.error){
+        return res
+            .status(500)
+            .send({
+                status: false,
+                message: updatedContract.error
+            });
+    }
+    return res
+        .status(201)
+        .send({
+            status: true,
+            message: `El Documento N° ${req.params.id} ha sido eliminado exitosamente`
+        });
+}
 const uploadDocumentOneContract = async (req, res) => {
     const updatedContract = await contractService.uploadDocumentOneContract(res.locals.decodedJWT, req.body, req.params.packageId);
     if (updatedContract.error){
@@ -270,6 +287,7 @@ export default {
     getAllContracts,
     getOneContract,
     updateOneContract,
+    deleteDocumentOneContract,
     uploadDocumentOneContract,
     updateOneContractTreatment,
     createNewCourtesySession,

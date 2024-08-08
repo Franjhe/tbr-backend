@@ -122,6 +122,7 @@ router
      */
     .post('/search', verifyIfClientExists, contractController.getAllContracts)
     .patch('/upload-documents/:packageId', verifyIfContractExists, contractController.uploadDocumentOneContract) //carga de documentos en contrato
+    .post('/delete-document/:id',contractController.deleteDocumentOneContract) //eliminar de documento en contrato
     
     /**
      * @swagger

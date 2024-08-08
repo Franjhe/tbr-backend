@@ -157,7 +157,7 @@ const getOneContract = async (packageId) => {
             let document =  await pool.request()
             .input('npaquete', sql.NVarChar, packageId)
             .query(
-                'select xruta from pcdocumentos where npaquete = @npaquete'
+                'select id, xruta, ndocumento from pcdocumentos where npaquete = @npaquete AND bactivo = 1 ORDER BY ndocumento ASC'
                 );
 
 
@@ -167,7 +167,6 @@ const getOneContract = async (packageId) => {
                 'select ncliente, cgrupo, ctratamiento, cgrupo_ant, ctratamiento_ant, xtratamiento, xtratamiento_ant, ncliente_ant, mprecio_min, nsesiones, xcomentario, bactivo '
                 + 'from vwbuscartratamientosxcontrato where npaquete = @npaquete'
             )
-
         let clientes = subresult.recordset.map(function (client) {
             return {
                 ncliente: client.ncliente,
@@ -191,6 +190,8 @@ const getOneContract = async (packageId) => {
         let documentos = document.recordset.map(function (document) {
             return {
                 ruta: document.xruta,
+                ndocumento: document.ndocumento,
+                id: document.id
             }
         });
 
@@ -268,17 +269,40 @@ const updateOneContract = async (userData, contractChanges, packageId) => {
     }
 }
 
+const deleteDocumentOneContract = async(id) => {
+    try {
+        let pool = await sql.connect(sqlConfig)
+        let preresult = await sql.query`SELECT * FROM pcdocumentos WHERE id = ${id}`
+            if(preresult.recordset.length > 0){
+                let check = await sql.query`UPDATE pcdocumentos SET bactivo = 0 WHERE id = ${id}`
+            }
+        return preresult
+    } catch (error) {
+        console.log(error.message);
+        return {
+            error: error.message
+        }
+    }
+}
+
 const uploadDocumentOneContract = async (userData, contractChanges, packageId) => {
     try {
-        let pool = await sql.connect(sqlConfig);
+        let pool = await sql.connect(sqlConfig)
         for (let i = 0; i < contractChanges.length; i++) {
+            if(contractChanges[i].ndocumento < 8) {
+                let preresult = await sql.query`SELECT * FROM pcdocumentos WHERE npaquete = ${packageId} AND ndocumento = ${contractChanges[i].ndocumento}`
+                if(preresult.recordset.length > 0){
+                    let check = await sql.query`UPDATE pcdocumentos SET bactivo = 0 WHERE npaquete = ${packageId} AND ndocumento = ${contractChanges[i].ndocumento}`
+                }
+            }
             let result = await pool.request()
-                .input('xruta', sql.NVarChar, contractChanges[i].ruta)
-                .input('npaquete', sql.NVarChar, packageId)
-                .input('fingreso', sql.DateTime, new Date())
-                .input('cusuario', sql.Numeric(4,0), userData.cusuario)
-                .query('insert into pcdocumentos (xruta , npaquete, fingreso, cusuario) values (@xruta, @npaquete, @fingreso, @cusuario) ')
-        }
+                    .input('xruta', sql.NVarChar, contractChanges[i].ruta)
+                    .input('ndocumento', sql.Numeric(4,0), contractChanges[i].ndocumento)
+                    .input('npaquete', sql.NVarChar, packageId)
+                    .input('fingreso', sql.DateTime, new Date())
+                    .input('cusuario', sql.Numeric(4,0), userData.cusuario)
+                    .query('insert into pcdocumentos (xruta , npaquete, fingreso, cusuario, ndocumento, bactivo) values (@xruta, @npaquete, @fingreso, @cusuario, @ndocumento, 1) ')
+                }
         return {
             status: true
         };
@@ -548,6 +572,7 @@ export default {
     getAllContracts,
     getOneContract,
     updateOneContract,
+    deleteDocumentOneContract,
     uploadDocumentOneContract,
     getOneContractTreatment,
     changeOneContractTreatment,
