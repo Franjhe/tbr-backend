@@ -77,7 +77,6 @@ const updateOneContract = async (userData, contractChanges, packageId) => {
 
 const deleteDocumentOneContract = async (id) => {
     const deleteDocumentOneContracts = await Contract.deleteDocumentOneContract(id);
-    console.log(deleteDocumentOneContracts);
     if (deleteDocumentOneContracts.error) {
         return {
             error: deleteDocumentOneContracts.error
